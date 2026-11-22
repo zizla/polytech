@@ -16,18 +16,17 @@
 images/
   train/안전모착용/     120장
   train/안전모미착용/   120장
-  test10/                10장 (정답 있음 — 강사용 정답표는 answers/)
+  test10/                10장 (정답 있음 — 정답표는 강사용 Google Drive 보관)
   new/                   15장 (정답 숨김 — 새 이미지 예측용)
 data/
   labels.csv          train 240행: 파일, 클래스, 머리상태
   README_원본.txt     원본 zip에 들어 있던 제작 안내문
-answers/
-  정답_helmet_new.csv      new 15장 정답 (강사용)
-  정답_helmet_test10.csv   test10 10장 정답 (강사용)
 scripts/
   make_helmet_images.py  합성 이미지 생성 스크립트 (난수 씨앗 2026)
   make_test10.py         test10 생성 스크립트 (난수 씨앗 3030)
 ```
+
+정답표(new 15장·test10 10장)는 강사용 Google Drive에 별도 보관합니다(공개 저장소 제외).
 
 | 구분 | 안전모착용 | 안전모미착용 | 합계 |
 | --- | ---: | ---: | ---: |
@@ -52,11 +51,11 @@ scripts/
 - `test10`에는 일부러 헷갈리는 사례가 들어 있습니다(안전모와 같은 색 야구모자, 둥근 비니, 안전모를 손에 든 맨머리, 후드).
 
 ## 정답표에 관하여
-- `answers/정답_helmet_new.csv`, `answers/정답_helmet_test10.csv`는 **강사용**입니다. 수강생에게 배포하기 전에 이 폴더를 빼고 전달하세요(원본 안내문의 '수강생 배포 전 분리 보관' 지침).
+- 정답표(`정답_helmet_new.csv`, `정답_helmet_test10.csv`)는 **강사용**으로, 공개 저장소에 넣지 않고 Google Drive `폴리텍 AI QC자동화 강의 > 과제 > data > answers_강사용` 폴더에 보관합니다. 수강생에게 배포하기 전에 이 폴더를 빼고 전달하세요(원본 안내문의 '수강생 배포 전 분리 보관' 지침).
 - 원본 Drive 폴더에는 `new/` 정답 파일이 없었습니다. 두 정답표는 `scripts/`의 생성 스크립트를 같은 난수 씨앗으로 다시 돌려 만들었고, **다시 만든 265장이 배포본 이미지와 바이트 단위로 모두 일치**하는 것을 확인한 뒤 그대로 옮겼습니다. 즉 배포본 이미지에 대한 정답이 맞습니다.
 
 ## Orange3에서 쓰기
 1. `Image Analytics → Import Images`에서 `images/train/안전모착용`·`images/train/안전모미착용` 폴더를 차례로 불러옵니다(하위 폴더 이름이 클래스가 됩니다).
 2. `Image Embedding` — Embedder = **Inception v3** (이미지를 외부 서버로 보내 계산하므로 인터넷 필요, 오프라인이면 SqueezeNet).
 3. `Test and Score` → `Confusion Matrix` → `Image Viewer`로 틀린 이미지를 직접 확인합니다.
-4. `images/test10` 또는 `images/new`를 `Import Images → Image Embedding → Predictions`로 연결해 새 이미지를 예측하고, `answers/`의 정답표와 맞춰 봅니다.
+4. `images/test10` 또는 `images/new`를 `Import Images → Image Embedding → Predictions`로 연결해 새 이미지를 예측하고, 강사용 정답표(Google Drive `answers_강사용` 폴더)와 맞춰 봅니다.

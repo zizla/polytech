@@ -21,11 +21,11 @@ images/
 data/
   labels.csv          train 360행: 파일, 클래스, 굽기정도_가상값
   README_원본.txt     원본 zip에 들어 있던 제작 안내문
-answers/
-  정답_new_폴더.csv   new 15장 정답 (강사용): 파일, 클래스, 굽기정도_가상값
 scripts/
   make_cookie_images.py  합성 이미지 생성 스크립트 (난수 씨앗 2026)
 ```
+
+정답표(new 15장)는 강사용 Google Drive에 별도 보관합니다(공개 저장소 제외).
 
 | 구분 | 덜구움 | 적정 | 과다구움 | 합계 |
 | --- | ---: | ---: | ---: | ---: |
@@ -44,11 +44,11 @@ scripts/
 - 배경 쟁반 색, 조명, 위치, 크기, 회전, 초코칩 개수, 흐림은 **클래스와 무관하게 무작위**입니다. 이런 요소로는 정답을 맞힐 수 없게 했습니다.
 
 ## 정답표에 관하여
-`answers/정답_new_폴더.csv`는 **강사용**입니다. 수강생에게 배포하기 전에 이 폴더를 빼고 전달하세요(원본 안내문의 '수강생 배포 전 분리 보관' 지침).
+`정답_new_폴더.csv`는 **강사용**으로, 공개 저장소에 넣지 않고 Google Drive `폴리텍 AI QC자동화 강의 > 과제 > data > answers_강사용` 폴더에 보관합니다. 수강생에게 배포하기 전에 이 파일을 빼고 전달하세요(원본 안내문의 '수강생 배포 전 분리 보관' 지침).
 행 수 15 = `images/new` 15장과 정확히 대응합니다(덜구움 5 · 적정 5 · 과다구움 5).
 
 ## Orange3에서 쓰기
 1. `Image Analytics → Import Images`에서 `images/train/덜구움`·`images/train/적정`·`images/train/과다구움` 폴더를 차례로 불러옵니다(하위 폴더 이름이 클래스가 됩니다).
 2. `Image Embedding` — Embedder = **Inception v3** (이미지를 외부 서버로 보내 계산하므로 인터넷 필요, 오프라인이면 SqueezeNet).
 3. `Test and Score`(교차검증) → `Confusion Matrix` → `Image Viewer`로 틀린 이미지를 직접 확인합니다.
-4. `images/new`를 `Import Images → Image Embedding → Predictions`로 연결해 새 쿠키를 예측하고, `answers/정답_new_폴더.csv`와 맞춰 봅니다. `굽기정도_가상값`을 타깃으로 두면 분류가 아니라 회귀(굽기 정도 예측) 실습으로도 쓸 수 있습니다.
+4. `images/new`를 `Import Images → Image Embedding → Predictions`로 연결해 새 쿠키를 예측하고, 강사용 정답표(Google Drive `answers_강사용/정답_new_폴더.csv`)와 맞춰 봅니다. `굽기정도_가상값`을 타깃으로 두면 분류가 아니라 회귀(굽기 정도 예측) 실습으로도 쓸 수 있습니다.
