@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>엑셀로 막히고, 데이터로 풀린다 — 식품 QC 기계학습 실습 (Orange3)</title>
+<style>
+:root{--ink:#1d2327;--sub:#5b6770;--line:#e3e6e8;--bg:#fafaf7;--card:#fff;--acc:#0f6e56;--acc2:#b4521e;--code:#f1f3f2}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;font-size:16px}
+header{background:var(--acc);color:#fff;padding:28px 18px 22px}
+header h1{margin:0 0 6px;font-size:1.45rem;line-height:1.35}
+header p{margin:0;opacity:.9;font-size:.92rem}
+nav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;z-index:5}
+nav a{display:inline-block;padding:10px 12px;color:var(--sub);text-decoration:none;font-size:.88rem}
+nav a:hover{color:var(--acc)}
+main{max-width:860px;margin:0 auto;padding:8px 16px 60px}
+section{margin-top:30px}
+h2{font-size:1.2rem;border-left:4px solid var(--acc);padding-left:10px;margin:0 0 12px}
+h3{font-size:1.02rem;margin:22px 0 8px}
+.note{background:#fff7ec;border:1px solid #f1d6b4;border-radius:8px;padding:12px 14px;font-size:.92rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.88em;word-break:break-all}
+.tw{overflow-x:auto;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:.86rem;background:#fff}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f2f5f3}
+.tw table{min-width:600px}
+td code{word-break:normal;white-space:nowrap}
+.small{font-size:.8rem;color:var(--sub)}
+details{background:#fff;border:1px solid var(--line);border-radius:8px;margin:8px 0;padding:0 12px}
+details[open]{padding-bottom:10px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+.url{display:flex;gap:6px;align-items:center;margin:6px 0}
+.url input{flex:1;min-width:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;padding:8px;border:1px solid var(--line);border-radius:6px;background:#fbfcfb}
+.url button,.btn{border:0;background:var(--acc);color:#fff;border-radius:6px;padding:8px 10px;font-size:.8rem;cursor:pointer;white-space:nowrap}
+.btn.alt{background:#fff;color:var(--acc);border:1px solid var(--acc)}
+.lbl{font-size:.8rem;color:var(--sub);margin-top:10px}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0}.gal img{width:100%;border-radius:4px;display:block}.gal figcaption{font-size:.68rem;text-align:center;color:var(--sub)}
+.flow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;background:#14201b;color:#d8efe5;border-radius:8px;padding:12px;overflow-x:auto;white-space:pre}
+.task{border-left:4px solid var(--acc2)}
+.task h3{margin-top:4px}
+.tag{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:10px;background:#e7f2ee;color:var(--acc);margin-right:4px}
+ol,ul{padding-left:20px}
+li{margin:3px 0}
+.cfg{display:flex;gap:6px;flex-wrap:wrap}
+.cfg input{flex:1;min-width:120px;padding:8px;border:1px solid var(--line);border-radius:6px}
+footer{max-width:860px;margin:0 auto;padding:20px 16px 40px;font-size:.8rem;color:var(--sub)}
+
+.before{border-left:4px solid #7a8691}
+.stuck{border-left:4px solid #c0392b;background:#fff8f7}
+.after{border-left:4px solid var(--acc)}
+.compare{border-left:4px solid #6c5ce7;background:#faf9ff}
+td.bad{color:#c0392b;font-weight:600}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.step{border-radius:8px;padding:8px 6px;text-align:center;font-weight:600;font-size:.86rem;line-height:1.35}
+.step small{font-weight:400;font-size:.72rem;display:block;margin-top:2px}
+.step.b{background:#eef0f2}.step.x{background:#fde8e6}.step.a{background:#e3f3ec}.step.c{background:#eeebff}
+.sim{background:#f7f8f6;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0}
+.simrow{display:flex;align-items:center;gap:10px;margin:6px 0}.simrow label{width:130px;font-size:.88rem}.simrow input{flex:1}
+.quiz{text-align:center;padding:6px 0}.quiz img{width:180px;height:180px;image-rendering:pixelated;border-radius:6px;border:1px solid var(--line)}
+.quiz .qb{display:flex;gap:10px;justify-content:center;margin-top:8px}.quiz .qb button{min-width:90px;font-size:1rem;padding:10px}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0}.gal img{width:100%;border-radius:4px;display:block}.gal figcaption{font-size:.68rem;text-align:center;color:var(--sub)}
+</style>
+</head>
+<body>
+<header>
+  <h1>엑셀로 막히고, 데이터로 풀린다<br>식품 QC 기계학습 실습 (Orange3)</h1>
+  <p>어묵 · 조미김 · 식품향료 · 도라지 가공품 4개 공정 가상 데이터 | Before → After 강의록</p>
+</header>
+<nav>
+  <a href="#notice">고지</a><a href="#flow">강의 흐름</a><a href="#access">데이터 열기</a><a href="#overview">데이터셋</a><a href="#mA">A 어묵</a><a href="#mB">B 도라지</a><a href="#mC">C 향료</a><a href="#mD">D 조미김</a><a href="#mE">E 이미지</a><a href="#mF">F 통합</a><a href="#wrap">정리</a><a href="#submit">제출·평가</a><a href="#deploy">배포</a>
+</nav>
+<main>
+
+<section id="notice">
+  <div class="note">
+    <b>가상 데이터 고지.</b> 이 데이터는 CJ씨푸드(어묵), 삼해상사(조미김), 세림향료(식품향료), 황초원(도라지 가공품)의 <b>제품군을 주제로 삼아</b> 교육용으로 만든 <b>시뮬레이션 데이터</b>입니다. 해당 기업의 실제 공정 조건, 규격, 불량률, 측정값, 검사 방식과 무관하며, 변수 간 관계는 실습을 위해 설계한 생성 규칙(난수 시드 고정)에 따릅니다. 이 강의록의 수치는 모두 이 가상 데이터에서 계산한 값입니다.
+  </div>
+</section>
+
+<section id="flow">
+  <h2>강의 흐름: 익숙한 방법으로 먼저 부딪혀 본다</h2>
+  <p>현장의 품질 분석은 보통 세 가지 방법으로 이루어집니다. 이 강의에서는 각 모듈마다 <b>익숙한 방법을 먼저 직접 해 보고</b>, 어디서 막히는지 확인한 뒤, <b>같은 데이터를 Orange3로 다시 봅니다</b>.</p>
+  <div class="tw"><table>
+    <tr><th>현장의 기존 방법</th><th>이 강의에서 체험할 막힘</th><th>모듈</th></tr>
+    <tr><td>엑셀 평균·표준편차 + t-검정</td><td>불량을 한 덩어리로 평균내면 원인이 묻힘</td><td>A 어묵</td></tr>
+    <tr><td>통제 실험 (한 번에 한 요인)</td><td>비용·시간이 크고, 두 요인이 함께 작용하는 효과를 놓침</td><td>B 도라지</td></tr>
+    <tr><td>엑셀 평균 비교</td><td>제품이 섞이면 평균이 무의미해짐</td><td>B 도라지</td></tr>
+    <tr><td>숙련자 관능검사</td><td>검사원마다 기준이 다르고, 시간이 지나면 흔들림</td><td>C 향료</td></tr>
+    <tr><td>엑셀 평균 비교 → “방향” 결정</td><td>양쪽 끝이 모두 위험한 관계(U자형)를 반대로 해석</td><td>C 향료</td></tr>
+    <tr><td>피벗 테이블 교차표</td><td>엑셀이 잘하는 영역. 다만 변수가 늘면 칸이 쪼개져 표본이 사라짐</td><td>D 조미김</td></tr>
+    <tr><td>육안 외관 검사</td><td>정확하지만 느리고, 하루 물량을 감당하기 어려움</td><td>E 이미지</td></tr>
+  </table></div>
+  <div class="card">
+    <p><b>모듈 진행 방식 (모듈당 약 50분)</b></p>
+    <div class="steps">
+      <div class="step b">① Before<br><small>엑셀·실험·관능으로 직접 분석 (20분)</small></div>
+      <div class="step x">② 막힘<br><small>결론을 써 보고 반례 확인 (5분)</small></div>
+      <div class="step a">③ After<br><small>Orange 워크플로로 재분석 (20분)</small></div>
+      <div class="step c">④ 비교<br><small>걸린 시간·발견 정리 (5분)</small></div>
+    </div>
+    <p class="small">진행 팁: Before 단계에서 결론을 반드시 <b>문장으로 적게</b> 하십시오. 자기 결론이 뒤집히는 순간이 이 강의의 핵심 경험입니다. 걸린 시간도 기록하게 합니다.</p>
+  </div>
+</section>
+
+<section id="access">
+  <h2>데이터 열기</h2>
+  <div class="card">
+    <p><b>Orange3</b>: File 위젯 → <b>URL</b> 선택 → 아래 주소 붙여넣기 → Reload. <code>_orange.csv</code>는 <code>합격여부</code>가 자동으로 타깃이 됩니다. 일반 <code>.csv</code>는 File 위젯에서 <code>합격여부</code>를 target, <code>배치ID</code>·<code>불량유형</code>을 meta로 지정합니다.</p>
+    <p><b>엑셀</b>: <code>excel/</code> 폴더의 파일을 내려받아 더블클릭합니다. 한글 열 이름이 깨지지 않도록 엑셀용으로 따로 저장한 파일입니다.</p>
+    <div id="cfgbox" class="lbl" style="display:none">이 페이지를 로컬에서 열었습니다. GitHub 사용자명과 저장소명을 입력하면 주소가 만들어집니다.
+      <div class="cfg" style="margin-top:6px"><input id="ghUser" placeholder="GitHub 사용자명"><input id="ghRepo" placeholder="저장소명"><button class="btn" onclick="setRepo()">적용</button></div>
+    </div>
+    <div id="urls"></div>
+  </div>
+</section>
+
+<section id="overview">
+  <h2>데이터셋 구성</h2>
+  <div class="tw"><table>
+    <thead><tr><th>데이터셋</th><th>행</th><th>열</th><th>불량률</th><th>불량 유형(건수)</th></tr></thead>
+    <tbody><tr><td><b>CJ 테마 · 어묵 튀김 공정</b><br><code>cj_fishcake_qc.csv</code></td><td>600</td><td>16</td><td>17.8%</td><td class='small'>Burn 79, Microbial 16, Soft_Texture 12</td></tr>
+<tr><td><b>삼해상사 테마 · 조미김 구이 공정</b><br><code>sh_laver_qc.csv</code></td><td>600</td><td>16</td><td>22.3%</td><td class='small'>Tear 94, Pinhole 23, Moisture_Absorption 17</td></tr>
+<tr><td><b>세림향료 테마 · 향료 배합·충전 공정</b><br><code>sr_flavor_qc.csv</code></td><td>500</td><td>19</td><td>14.2%</td><td class='small'>Seal_Defect 45, Underfill 18, Weak_Intensity 8</td></tr>
+<tr><td><b>황초원 테마 · 도라지 가공품(청·티베이스·음료) 추출·농축·충전 공정</b><br><code>hc_doraji_qc.csv</code></td><td>500</td><td>20</td><td>25.4%</td><td class='small'>Low_Brix 56, Microbial 33, Low_Saponin 22, Browning 16</td></tr>
+<tr><td><b>4사 통합 · 공통 스키마</b><br><code>integrated_qc.csv</code></td><td>2,200</td><td>10</td><td>20.0%</td><td class='small'>Tear 94, Burn 79, Low_Brix 56, Microbial 49, Seal_Defect 45, Pinhole 23, Low_Saponin 22, Underfill 18, Moisture_Absorption 17, Browning 16, Soft_Texture 12, Weak_Intensity 8</td></tr></tbody>
+  </table></div>
+  <p class="small">추가 파일: <code>sr_sensory_panel.csv</code>(관능 패널 60배치 × 검사원 5명, 모듈 C), 이미지 세트(모듈 E).</p>
+  <h3>데이터 사전</h3>
+  <p class="small">범위와 결측 건수는 배포 파일에서 직접 계산한 값입니다.</p>
+  <details><summary>CJ 테마 · 어묵 튀김 공정 — <code>cj_fishcake_qc.csv</code></summary>
+<div class="tw"><table><thead><tr><th>변수</th><th>역할</th><th>단위</th><th>설명</th><th>범위/값</th><th>결측</th></tr></thead><tbody>
+<tr><td><code>배치ID</code></td><td>메타</td><td>-</td><td>배치 식별자</td><td>600개 고유값</td><td></td></tr>
+<tr><td><code>라인</code></td><td>범주</td><td>-</td><td>생산 라인 (L1~L3)</td><td>L1 / L2 / L3</td><td></td></tr>
+<tr><td><code>근무조</code></td><td>범주</td><td>-</td><td>근무조 (Day/Night)</td><td>Day / Night</td><td></td></tr>
+<tr><td><code>어육배합비</code></td><td>연속</td><td>%</td><td>연육(어육) 배합비</td><td>40 ~ 80</td><td></td></tr>
+<tr><td><code>전분배합비</code></td><td>연속</td><td>%</td><td>전분 배합비</td><td>4.6 ~ 16.2</td><td></td></tr>
+<tr><td><code>염도</code></td><td>연속</td><td>%</td><td>염도</td><td>1 ~ 2.7</td><td>18</td></tr>
+<tr><td><code>튀김온도</code></td><td>연속</td><td>°C</td><td>튀김유 온도 (센서 이상치 포함)</td><td>121 ~ 201.5</td><td></td></tr>
+<tr><td><code>튀김시간</code></td><td>연속</td><td>s</td><td>튀김 시간</td><td>63 ~ 118</td><td></td></tr>
+<tr><td><code>중심온도</code></td><td>연속</td><td>°C</td><td>제품 중심온도</td><td>66.6 ~ 83</td><td></td></tr>
+<tr><td><code>수분</code></td><td>연속</td><td>%</td><td>수분 함량</td><td>61.4 ~ 74.2</td><td>17</td></tr>
+<tr><td><code>세척후경과시간</code></td><td>연속</td><td>h</td><td>마지막 세척 후 경과시간</td><td>0 ~ 12</td><td></td></tr>
+<tr><td><code>작업장습도</code></td><td>연속</td><td>%RH</td><td>작업장 상대습도</td><td>25 ~ 84.3</td><td></td></tr>
+<tr><td><code>겔강도</code></td><td>연속</td><td>g·cm</td><td>겔 강도(탄력)</td><td>166 ~ 443</td><td>11</td></tr>
+<tr><td><code>일반세균수_log</code></td><td>연속</td><td>log CFU/g</td><td>일반세균수(로그)</td><td>1.12 ~ 3.88</td><td></td></tr>
+<tr><td><code>불량유형</code></td><td>메타/보조 타깃</td><td>-</td><td>None · Burn · Microbial · Soft_Texture</td><td>Burn / Microbial / Soft_Texture</td><td>493</td></tr>
+<tr><td><code>합격여부</code></td><td>타깃</td><td>-</td><td>Pass / Fail</td><td>Fail / Pass</td><td></td></tr></tbody></table></div></details>
+<details><summary>삼해상사 테마 · 조미김 구이 공정 — <code>sh_laver_qc.csv</code></summary>
+<div class="tw"><table><thead><tr><th>변수</th><th>역할</th><th>단위</th><th>설명</th><th>범위/값</th><th>결측</th></tr></thead><tbody>
+<tr><td><code>배치ID</code></td><td>메타</td><td>-</td><td>배치 식별자</td><td>600개 고유값</td><td></td></tr>
+<tr><td><code>라인</code></td><td>범주</td><td>-</td><td>생산 라인 (L1~L2)</td><td>L1 / L2</td><td></td></tr>
+<tr><td><code>근무조</code></td><td>범주</td><td>-</td><td>근무조</td><td>Day / Night</td><td></td></tr>
+<tr><td><code>원초등급</code></td><td>범주</td><td>-</td><td>원초(마른김) 등급 A/B/C</td><td>A / B / C</td><td></td></tr>
+<tr><td><code>원초중량</code></td><td>연속</td><td>g/장</td><td>원초 1장 중량</td><td>2.3 ~ 3.48</td><td></td></tr>
+<tr><td><code>구이온도</code></td><td>연속</td><td>°C</td><td>구이 온도</td><td>250.3 ~ 317.4</td><td></td></tr>
+<tr><td><code>구이시간</code></td><td>연속</td><td>s</td><td>구이 시간</td><td>3.5 ~ 8.7</td><td></td></tr>
+<tr><td><code>도유량</code></td><td>연속</td><td>g/100장</td><td>도유량</td><td>7.4 ~ 17.8</td><td>7</td></tr>
+<tr><td><code>염도</code></td><td>연속</td><td>%</td><td>염도</td><td>1.41 ~ 3.49</td><td></td></tr>
+<tr><td><code>세척후경과시간</code></td><td>연속</td><td>h</td><td>세척 후 경과시간</td><td>0 ~ 12</td><td></td></tr>
+<tr><td><code>작업장습도</code></td><td>연속</td><td>%RH</td><td>작업장 상대습도</td><td>25 ~ 85.2</td><td></td></tr>
+<tr><td><code>수분</code></td><td>연속</td><td>%</td><td>제품 수분</td><td>1.71 ~ 4.52</td><td></td></tr>
+<tr><td><code>수분활성도</code></td><td>연속</td><td>aw</td><td>수분활성도</td><td>0.15 ~ 0.409</td><td>21</td></tr>
+<tr><td><code>핀홀수</code></td><td>연속(정수)</td><td>개/장</td><td>핀홀(구멍) 개수</td><td>0 ~ 12</td><td></td></tr>
+<tr><td><code>불량유형</code></td><td>메타/보조 타깃</td><td>-</td><td>None · Tear · Pinhole · Moisture_Absorption</td><td>Moisture_Absorption / Pinhole / Tear</td><td>466</td></tr>
+<tr><td><code>합격여부</code></td><td>타깃</td><td>-</td><td>Pass / Fail</td><td>Fail / Pass</td><td></td></tr></tbody></table></div></details>
+<details><summary>세림향료 테마 · 향료 배합·충전 공정 — <code>sr_flavor_qc.csv</code></summary>
+<div class="tw"><table><thead><tr><th>변수</th><th>역할</th><th>단위</th><th>설명</th><th>범위/값</th><th>결측</th></tr></thead><tbody>
+<tr><td><code>배치ID</code></td><td>메타</td><td>-</td><td>배치 식별자</td><td>500개 고유값</td><td></td></tr>
+<tr><td><code>라인</code></td><td>범주</td><td>-</td><td>생산 라인</td><td>L1 / L2</td><td></td></tr>
+<tr><td><code>근무조</code></td><td>범주</td><td>-</td><td>근무조</td><td>Day / Night</td><td></td></tr>
+<tr><td><code>제품형태</code></td><td>범주</td><td>-</td><td>Liquid(액상) / Powder(분말)</td><td>Liquid / Powder</td><td></td></tr>
+<tr><td><code>적용용도</code></td><td>범주</td><td>-</td><td>적용 용도 (Beverage, Bakery, Dairy, Confectionery)</td><td>Bakery / Beverage / Confectionery / Dairy</td><td></td></tr>
+<tr><td><code>배치크기_kg</code></td><td>연속</td><td>kg</td><td>배치 크기 (200/500/1000)</td><td>200 ~ 1000</td><td></td></tr>
+<tr><td><code>배합온도</code></td><td>연속</td><td>°C</td><td>배합 온도</td><td>15.8 ~ 31.9</td><td></td></tr>
+<tr><td><code>배합시간</code></td><td>연속</td><td>min</td><td>배합 시간</td><td>16 ~ 65</td><td></td></tr>
+<tr><td><code>용제비율</code></td><td>연속</td><td>%</td><td>용제(희석제/부형제) 비율</td><td>9.4 ~ 85.8</td><td></td></tr>
+<tr><td><code>세척후경과시간</code></td><td>연속</td><td>h</td><td>세척 후 경과시간</td><td>0 ~ 12</td><td></td></tr>
+<tr><td><code>작업장습도</code></td><td>연속</td><td>%RH</td><td>작업장 상대습도</td><td>25 ~ 90</td><td></td></tr>
+<tr><td><code>점도_cP</code></td><td>연속</td><td>cP</td><td>점도 — 액상만 측정(분말은 구조적 결측)</td><td>17.8 ~ 43</td><td>190</td></tr>
+<tr><td><code>비중</code></td><td>연속</td><td>-</td><td>비중</td><td>0.527 ~ 1.012</td><td></td></tr>
+<tr><td><code>굴절률</code></td><td>연속</td><td>-</td><td>굴절률 — 액상만 측정(분말은 구조적 결측)</td><td>1.4106 ~ 1.4306</td><td>190</td></tr>
+<tr><td><code>향강도</code></td><td>연속</td><td>점(1~10)</td><td>관능 향 강도 점수</td><td>5.02 ~ 9.46</td><td></td></tr>
+<tr><td><code>충전량편차</code></td><td>연속</td><td>%</td><td>표시용량 대비 충전량 편차</td><td>-3.5 ~ 3.78</td><td></td></tr>
+<tr><td><code>캡토크</code></td><td>연속</td><td>kgf·cm</td><td>캡 체결 토크</td><td>7.8 ~ 20.3</td><td></td></tr>
+<tr><td><code>불량유형</code></td><td>메타/보조 타깃</td><td>-</td><td>None · Weak_Intensity · Underfill · Seal_Defect</td><td>Seal_Defect / Underfill / Weak_Intensity</td><td>429</td></tr>
+<tr><td><code>합격여부</code></td><td>타깃</td><td>-</td><td>Pass / Fail</td><td>Fail / Pass</td><td></td></tr></tbody></table></div></details>
+<details><summary>황초원 테마 · 도라지 가공품(청·티베이스·음료) 추출·농축·충전 공정 — <code>hc_doraji_qc.csv</code></summary>
+<div class="tw"><table><thead><tr><th>변수</th><th>역할</th><th>단위</th><th>설명</th><th>범위/값</th><th>결측</th></tr></thead><tbody>
+<tr><td><code>배치ID</code></td><td>메타</td><td>-</td><td>배치 식별자</td><td>500개 고유값</td><td></td></tr>
+<tr><td><code>라인</code></td><td>범주</td><td>-</td><td>생산 라인</td><td>L1 / L2</td><td></td></tr>
+<tr><td><code>근무조</code></td><td>범주</td><td>-</td><td>근무조</td><td>Day / Night</td><td></td></tr>
+<tr><td><code>제품유형</code></td><td>범주</td><td>-</td><td>Syrup(도라지청) / TeaBase(티베이스) / Drink(음료)</td><td>Drink / Syrup / TeaBase</td><td></td></tr>
+<tr><td><code>원료산지</code></td><td>범주</td><td>-</td><td>원료 산지 구분 (Domestic_A, Domestic_B, Imported)</td><td>Domestic_A / Domestic_B / Imported</td><td></td></tr>
+<tr><td><code>원료수분</code></td><td>연속</td><td>%</td><td>원료 도라지 수분</td><td>71.2 ~ 87</td><td></td></tr>
+<tr><td><code>추출온도</code></td><td>연속</td><td>°C</td><td>추출 온도</td><td>87.9 ~ 101.6</td><td></td></tr>
+<tr><td><code>추출시간</code></td><td>연속</td><td>min</td><td>추출 시간</td><td>74 ~ 163</td><td></td></tr>
+<tr><td><code>농축온도</code></td><td>연속</td><td>°C</td><td>농축 온도</td><td>74.7 ~ 95.5</td><td></td></tr>
+<tr><td><code>농축시간</code></td><td>연속</td><td>min</td><td>농축 시간</td><td>31 ~ 88</td><td></td></tr>
+<tr><td><code>충전온도</code></td><td>연속</td><td>°C</td><td>열충전 온도</td><td>81.6 ~ 94.4</td><td></td></tr>
+<tr><td><code>세척후경과시간</code></td><td>연속</td><td>h</td><td>세척 후 경과시간</td><td>0 ~ 12</td><td></td></tr>
+<tr><td><code>작업장습도</code></td><td>연속</td><td>%RH</td><td>작업장 상대습도</td><td>25.4 ~ 90</td><td></td></tr>
+<tr><td><code>당도_Brix</code></td><td>연속</td><td>°Brix</td><td>당도 — 제품유형별 규격이 다름(가상 규격: 65/45/12)</td><td>10.2 ~ 69.6</td><td></td></tr>
+<tr><td><code>pH</code></td><td>연속</td><td>-</td><td>pH</td><td>4.07 ~ 5.06</td><td>12</td></tr>
+<tr><td><code>조사포닌_mg_g</code></td><td>연속</td><td>mg/g</td><td>조사포닌 함량(지표성분, 가상값)</td><td>0.79 ~ 3</td><td>6</td></tr>
+<tr><td><code>갈변도_A420</code></td><td>연속</td><td>흡광도</td><td>갈변도(420 nm 흡광도)</td><td>0.107 ~ 0.976</td><td></td></tr>
+<tr><td><code>일반세균수_log</code></td><td>연속</td><td>log CFU/g</td><td>일반세균수(로그)</td><td>0.3 ~ 4.28</td><td></td></tr>
+<tr><td><code>불량유형</code></td><td>메타/보조 타깃</td><td>-</td><td>None · Low_Brix · Browning · Microbial · Low_Saponin</td><td>Browning / Low_Brix / Low_Saponin / Microbial</td><td>373</td></tr>
+<tr><td><code>합격여부</code></td><td>타깃</td><td>-</td><td>Pass / Fail</td><td>Fail / Pass</td><td></td></tr></tbody></table></div></details>
+<details><summary>4사 통합 · 공통 스키마 — <code>integrated_qc.csv</code></summary>
+<div class="tw"><table><thead><tr><th>변수</th><th>역할</th><th>단위</th><th>설명</th><th>범위/값</th><th>결측</th></tr></thead><tbody>
+<tr><td><code>배치ID</code></td><td>메타</td><td>-</td><td>배치 식별자 (접두어로 업체 구분)</td><td>2200개 고유값</td><td></td></tr>
+<tr><td><code>업체</code></td><td>범주</td><td>-</td><td>CJ / SH / SR / HC</td><td>CJ / HC / SH / SR</td><td></td></tr>
+<tr><td><code>라인</code></td><td>범주</td><td>-</td><td>생산 라인</td><td>L1 / L2 / L3</td><td></td></tr>
+<tr><td><code>근무조</code></td><td>범주</td><td>-</td><td>근무조</td><td>Day / Night</td><td></td></tr>
+<tr><td><code>온도편차_z</code></td><td>연속</td><td>z</td><td>핵심 가열/배합 온도의 설정값 대비 표준화 편차 (CJ 튀김 160°C·SD6, SH 구이 280°C·SD12, SR 배합 25°C·SD2.5, HC 농축 85°C·SD4)</td><td>-6.5 ~ 6.917</td><td></td></tr>
+<tr><td><code>수분편차_z</code></td><td>연속</td><td>z</td><td>업체 내 표준화한 수분 편차 — SR·HC는 수분 항목이 없어 결측</td><td>-3.726 ~ 3.378</td><td>1017</td></tr>
+<tr><td><code>세척후경과시간</code></td><td>연속</td><td>h</td><td>세척 후 경과시간</td><td>0 ~ 12</td><td></td></tr>
+<tr><td><code>작업장습도</code></td><td>연속</td><td>%RH</td><td>작업장 상대습도</td><td>25 ~ 90</td><td></td></tr>
+<tr><td><code>합격여부</code></td><td>타깃</td><td>-</td><td>Pass / Fail</td><td>Fail / Pass</td><td></td></tr>
+<tr><td><code>불량유형</code></td><td>메타/보조 타깃</td><td>-</td><td>업체별 불량 유형 12종 + None</td><td>12개 고유값</td><td>1761</td></tr></tbody></table></div></details>
+</section>
+
+<!-- ===================== MODULE A ===================== -->
+<section id="mA">
+  <h2>모듈 A. 어묵 — 평균이 원인을 숨긴다</h2>
+  <p class="small">데이터: <code>cj_fishcake_qc</code> · 기존 방법: 엑셀 평균·표준편차 + t-검정</p>
+
+  <div class="card before">
+    <h3>① Before — 엑셀로 합격/불합격 비교표 만들기</h3>
+    <ol>
+      <li><code>cj_fishcake_qc_excel.csv</code>를 엑셀로 엽니다.</li>
+      <li>새 시트에 변수별로 합격·불합격 평균과 표준편차를 구합니다.<br><code>=AVERAGEIFS(튀김온도열, 합격여부열, "Pass")</code>, <code>=STDEV.S(IF(합격여부열="Fail", 튀김온도열))</code> (엑셀 2019 이전은 Ctrl+Shift+Enter로 입력)</li>
+      <li><b>데이터 → 데이터 분석 → t-검정: 이분산 가정 두 집단</b>으로 변수마다 p-값을 구합니다. (데이터 분석 메뉴가 없으면 파일 → 옵션 → 추가 기능 → 분석 도구 활성화)</li>
+      <li>p &lt; 0.05인 변수를 “불량 원인 후보”로, 나머지를 “무관”으로 분류해 <b>결론을 한 문장으로</b> 적습니다.</li>
+    </ol>
+    <p class="small">이 데이터에서 실제로 나오는 값(Welch t-검정):</p>
+    <div class="tw"><table>
+      <tr><th>변수</th><th>합격 평균±SD</th><th>불합격 평균±SD</th><th>p</th></tr>
+      <tr><td>튀김온도</td><td>158.7 ± 5.7</td><td>165.8 ± 7.3</td><td>&lt;0.001</td></tr>
+      <tr><td>중심온도</td><td>74.4 ± 2.6</td><td>76.8 ± 2.9</td><td>&lt;0.001</td></tr>
+      <tr><td>튀김시간</td><td>88.6 ± 10.0</td><td>92.7 ± 9.2</td><td>&lt;0.001</td></tr>
+      <tr><td>일반세균수_log</td><td>2.65 ± 0.47</td><td>2.57 ± 0.62</td><td class="bad">0.227</td></tr>
+      <tr><td>세척후경과시간</td><td>6.02 ± 3.48</td><td>6.23 ± 3.56</td><td class="bad">0.570</td></tr>
+    </table></div>
+  </div>
+
+  <div class="card stuck">
+    <h3>② 막힘</h3>
+    <p>엑셀 결론은 “튀김 온도를 관리하면 된다. <b>세균수와 세척 주기는 불량과 무관하다</b>”입니다.</p>
+    <p>그런데 미생물 기준 초과로 반품된 배치가 있습니다. 세균수가 불량과 무관하다는 결론을 품질팀장에게 그대로 보고할 수 있을까요?</p>
+    <p class="small">원인: 불합격 배치의 대부분이 탄 자국(Burn) 불량입니다. 성격이 다른 불량을 하나의 “Fail”로 묶어 평균을 내면, 수가 적은 미생물 불량의 신호가 묻힙니다.</p>
+  </div>
+
+  <div class="card after">
+    <h3>③ After — Orange로 다시 보기</h3>
+    <div class="flow">File ─ Select Columns (Target: 불량유형) ─┬─ Box Plot (일반세균수_log, Subgroups: 불량유형)
+                                         ├─ Rank
+                                         └─ Tree ─ Tree Viewer</div>
+    <ol>
+      <li>Select Columns에서 타깃을 <code>불량유형</code>으로 바꿉니다(<code>합격여부</code>는 Ignore).</li>
+      <li>Box Plot에서 <code>일반세균수_log</code>를 불량유형별로 보십시오. 미생물 불량 배치의 평균은 <b>3.40</b>, 합격 배치는 <b>2.65</b>입니다(t-검정 p&lt;0.001).</li>
+      <li>Rank 위젯으로 불량유형별 중요 변수를 보고, Tree Viewer에서 Microbial로 가는 경로를 읽으십시오.</li>
+      <li>Box Plot에서 <code>근무조</code>, <code>세척후경과시간</code>과 미생물 불량의 관계를 확인합니다. 미생물 불량률은 Night 4.4% / Day 1.6%, 세척 후 6시간 초과 4.3% / 이하 1.0%입니다.</li>
+    </ol>
+  </div>
+
+  <div class="card compare">
+    <h3>④ 비교</h3>
+    <div class="tw"><table>
+      <tr><th></th><th>엑셀 (Before)</th><th>Orange (After)</th></tr>
+      <tr><td>세균수</td><td>무관 (p=0.227)</td><td>미생물 불량의 핵심 변수</td></tr>
+      <tr><td>세척 주기</td><td>무관 (p=0.570)</td><td>6시간 넘으면 미생물 불량률 약 4배</td></tr>
+      <tr><td>작업</td><td>변수 11개 × 수식·t-검정 반복</td><td>위젯 4개 연결, 타깃만 바꿔 재실행</td></tr>
+    </table></div>
+    <p class="small">짚을 점: 엑셀이 틀린 것이 아니라 <b>질문이 너무 뭉뚱그려져 있었던 것</b>입니다. 엑셀에서도 불량유형별로 나누면 같은 결과가 나옵니다. 기계학습 도구는 이렇게 나눠 보는 일을 빠르고 체계적으로 하게 해 줍니다.</p>
+  </div>
+</section>
+
+<!-- ===================== MODULE B ===================== -->
+<section id="mB">
+  <h2>모듈 B. 도라지 — 실험의 비용과, 섞인 평균의 함정</h2>
+  <p class="small">데이터: <code>hc_doraji_qc</code> · 기존 방법: 한 번에 한 요인씩 바꾸는 통제 실험, 엑셀 평균 비교</p>
+
+  <div class="card before">
+    <h3>① Before (1) — 갈변 원인 찾기 실험</h3>
+    <p>도라지청 갈변 불량이 늘었습니다. 농축 온도와 농축 시간 중 무엇이 원인인지 <b>현장 실험</b>으로 찾아봅니다. 현재 기준 조건은 <b>85°C · 60분</b>입니다.</p>
+    <p class="small">규칙: 실험 1회 = 20배치 생산(라인 반나절 사용, 가상). 예산은 <b>8회</b>입니다. 보통은 한 요인을 고정하고 다른 요인만 바꾸는 방식으로 진행합니다.</p>
+    <div class="sim">
+      <div class="simrow"><label>농축온도 <b id="tv">85</b>°C</label><input type="range" id="simT" min="75" max="95" step="1" value="85" oninput="tv.textContent=this.value"></div>
+      <div class="simrow"><label>농축시간 <b id="mv">60</b>분</label><input type="range" id="simM" min="30" max="90" step="5" value="60" oninput="mv.textContent=this.value"></div>
+      <div><button class="btn" onclick="runSim()">실험 1회 실시 (20배치)</button> <span id="budget" class="small"></span></div>
+      <div class="tw"><table id="simtab"><tr><th>회차</th><th>온도</th><th>시간</th><th>갈변 배치</th></tr></table></div>
+      <p id="simmsg" class="small"></p>
+    </div>
+    <p>실험이 끝나면 결론을 적습니다. 예: “온도만 올렸을 때 ○○, 시간만 늘렸을 때 ○○ → 원인은 ○○”.</p>
+
+    <h3>① Before (2) — 엑셀로 당도 비교</h3>
+    <p>당도미달 불량이 가장 많습니다. <code>hc_doraji_qc_excel.csv</code>에서 합격·불합격의 <code>당도_Brix</code> 평균을 비교하고 t-검정을 해 보십시오.</p>
+    <div class="tw"><table>
+      <tr><th>변수</th><th>합격 평균±SD</th><th>불합격 평균±SD</th><th>p</th></tr>
+      <tr><td>당도_Brix</td><td>45.5 ± 21.7</td><td>47.7 ± 21.1</td><td class="bad">0.322</td></tr>
+      <tr><td>농축온도</td><td>85.1 ± 3.9</td><td>85.3 ± 4.3</td><td class="bad">0.691</td></tr>
+    </table></div>
+  </div>
+
+  <div class="card stuck">
+    <h3>② 막힘</h3>
+    <ul>
+      <li><b>실험</b>: 한 요인씩 바꾸면 갈변이 거의 생기지 않거나 조금만 늘어납니다. “둘 다 조금 영향이 있다” 정도의 애매한 결론이 나옵니다. 두 요인을 함께 바꾼 조합까지 확인하려면 예산이 모자랍니다.</li>
+      <li><b>엑셀</b>: 당도미달이 가장 많은 불량인데 당도 평균에 차이가 없다고(p=0.322) 나옵니다. 농축온도도 무관하다고(p=0.691) 나옵니다.</li>
+    </ul>
+    <p class="small">원인: (1) 갈변은 온도와 시간이 <b>함께</b> 높을 때만 크게 늘어납니다. (2) 당도 규격이 65·45·12 °Brix로 다른 세 제품이 한 열에 섞여 있어, 평균이 제품 구성비를 반영할 뿐입니다.</p>
+  </div>
+
+  <div class="card after">
+    <h3>③ After — 이미 쌓인 생산 기록 500배치로 보기</h3>
+    <div class="flow">File ─┬─ Scatter Plot (x: 농축온도, y: 농축시간, Color: 불량유형)
+     ├─ Box Plot (당도_Brix, Subgroups: 제품유형 → 합격여부)
+     └─ Formula (당도편차) ─ Logistic Regression / Random Forest ─ Test and Score</div>
+    <ol>
+      <li>Scatter Plot에서 Browning 배치가 오른쪽 위 모서리에만 모이는 것을 확인하십시오. 생산 기록으로 집계하면 다음과 같습니다.
+        <div class="tw"><table>
+          <tr><th>조건</th><th>배치 수</th><th>갈변 불량률</th></tr>
+          <tr><td>온도 ≤88°C, 시간 ≤65분</td><td>278</td><td>0.4%</td></tr>
+          <tr><td>온도 ≤88°C, 시간 &gt;65분</td><td>103</td><td>2.9%</td></tr>
+          <tr><td>온도 &gt;88°C, 시간 ≤65분</td><td>88</td><td>0.0%</td></tr>
+          <tr><td><b>온도 &gt;88°C, 시간 &gt;65분</b></td><td>31</td><td><b>38.7%</b></td></tr>
+        </table></div>
+      </li>
+      <li>Box Plot에서 제품유형별로 나눠 당도를 다시 보십시오. 제품별로 비교하면 당도미달 배치의 평균은 Syrup 62.4 vs 합격 65.1, TeaBase 43.0 vs 45.3, Drink 10.9 vs 12.2로, 세 제품 모두 t-검정 p&lt;0.001입니다.</li>
+      <li><b>Formula</b>로 규격 대비 편차를 만듭니다: <code>당도편차 = 당도_Brix - (65 if 제품유형 == "Syrup" else 45 if 제품유형 == "TeaBase" else 12)</code></li>
+      <li>당도편차를 넣기 전과 후의 AUC를 Test and Score로 비교합니다.</li>
+    </ol>
+  </div>
+
+  <div class="card compare">
+    <h3>④ 비교</h3>
+    <div class="tw"><table>
+      <tr><th></th><th>실험·엑셀 (Before)</th><th>생산 기록 + Orange (After)</th></tr>
+      <tr><td>비용</td><td>8회 × 20배치 = 160배치, 라인 4일(가상)</td><td>추가 생산 0배치 (기존 기록 500배치)</td></tr>
+      <tr><td>갈변 원인</td><td>한 요인씩: 효과 작음·애매</td><td>두 조건이 함께 높을 때 38.7%</td></tr>
+      <tr><td>당도</td><td>무관 (p=0.322)</td><td>제품별로는 모두 p&lt;0.001, 편차 변수로 예측력 향상</td></tr>
+    </table></div>
+    <p class="small">짚을 점: 생산 기록 분석은 <b>가설을 빠르게 좁히는 도구</b>입니다. “온도와 시간을 동시에 낮추면 갈변이 줄어든다”는 인과적 결론은 마지막에 <b>좁혀진 조건으로 설계한 확인 실험</b>으로 검증해야 합니다. 실험은 없어지지 않고, 더 적은 횟수로 정확한 곳을 겨냥하게 됩니다.</p>
+  </div>
+</section>
+
+<!-- ===================== MODULE C ===================== -->
+<section id="mC">
+  <h2>모듈 C. 향료 — 관능검사의 흔들림과, 반대로 읽힌 평균</h2>
+  <p class="small">데이터: <code>sr_sensory_panel</code>, <code>sr_flavor_qc</code> · 기존 방법: 검사원 관능 판정, 엑셀 평균 비교</p>
+
+  <div class="card before">
+    <h3>① Before (1) — 관능 판정 일치도 확인</h3>
+    <p>향료 60배치를 현장 검사원 5명이 각각 향 강도 점수(1~10)로 평가하고, 6.0 미만이면 불합격으로 판정했습니다. 기준값은 숙련 패널 합의 점수(<code>기준향강도</code>)입니다.</p>
+    <ol>
+      <li><code>sr_sensory_panel_excel.csv</code>를 엽니다.</li>
+      <li>검사원마다 <code>=COUNTIF</code> 또는 <code>=SUMPRODUCT(--(검사원1_판정열=기준판정열))/60</code>으로 기준 판정과의 일치율을 구합니다.</li>
+      <li>5명의 판정이 모두 같은 배치가 몇 개인지 셉니다.</li>
+      <li>평가순서 1~30번과 31~60번으로 나눠 검사원별 오차(점수−기준) 표준편차를 비교합니다.</li>
+    </ol>
+  </div>
+
+  <div class="card stuck">
+    <h3>② 막힘</h3>
+    <div class="tw"><table>
+      <tr><th>검사원</th><th>기준 판정 일치율</th><th>평균 오차</th><th>오차 SD (전반 → 후반)</th></tr>
+      <tr><td>검사원1</td><td>98.3%</td><td>−0.05</td><td>0.26 → 0.25</td></tr>
+      <tr><td>검사원2</td><td>91.7%</td><td>+0.63</td><td>0.37 → 0.35</td></tr>
+      <tr><td>검사원3</td><td>78.3%</td><td>−0.35</td><td>0.55 → 0.48</td></tr>
+      <tr><td>검사원4</td><td>88.3%</td><td>+0.10</td><td class="bad">0.62 → 1.03</td></tr>
+      <tr><td>검사원5</td><td>86.7%</td><td>+0.17</td><td>0.78 → 0.78</td></tr>
+    </table></div>
+    <p>5명이 모두 같은 판정을 내린 배치는 <b>65.0%</b>뿐입니다. 같은 제품을 누가 검사하느냐에 따라 합격·불합격이 바뀝니다. 그런데 엑셀 표만으로는 <b>왜</b> 다른지(점수를 늘 높게 주는지, 점점 지치는지, 그냥 들쭉날쭉한지) 구분하기 어렵습니다.</p>
+  </div>
+
+  <div class="card after">
+    <h3>③ After (1) — 검사원 특성 진단</h3>
+    <div class="flow">File(sr_sensory_panel_long.csv) ─┬─ Box Plot (오차, Subgroups: 검사원)
+                                ├─ Scatter Plot (x: 평가순서, y: 오차, Color: 검사원)
+                                └─ Pivot Table (검사원 × 판정일치)</div>
+    <ol>
+      <li>세로형 데이터(<code>_long</code>)를 불러옵니다. 한 행이 “검사원 1명의 1배치 평가”입니다.</li>
+      <li>Box Plot에서 검사원별 오차 분포를 비교합니다. 중앙이 0에서 벗어나면 <b>편향</b>(검사원2는 높게, 검사원3은 낮게), 상자가 넓으면 <b>산포</b>(검사원5)입니다.</li>
+      <li>Scatter Plot에서 검사원4만 선택해 평가순서에 따라 오차가 벌어지는 <b>피로 패턴</b>을 확인합니다.</li>
+      <li>진단 결과에 따라 대응을 정리합니다: 편향 → 보정 교육, 산포 → 재훈련, 피로 → 연속 평가 수 제한.</li>
+    </ol>
+    <p class="small">관능검사는 소비자가 실제로 느끼는 품질을 재는 방법이라 기계학습이 대신할 수 없습니다. 참고로 이 데이터에서 공정 변수만으로 향 강도를 예측하면 R²가 0.245(선형 회귀, scikit-learn 5겹)에 그칩니다. 데이터 분석은 관능검사를 <b>더 믿을 수 있게 관리하는 데</b> 씁니다.</p>
+  </div>
+
+  <div class="card before">
+    <h3>① Before (2) — 캡 토크, 올릴까 내릴까</h3>
+    <p><code>sr_flavor_qc_excel.csv</code>에서 합격·불합격의 <code>캡토크</code> 평균을 비교합니다.</p>
+    <div class="tw"><table>
+      <tr><th>변수</th><th>합격 평균±SD</th><th>불합격 평균±SD</th><th>p</th></tr>
+      <tr><td>캡토크</td><td>15.0 ± 1.8</td><td>14.1 ± 3.3</td><td>0.031</td></tr>
+    </table></div>
+    <p>결론 예: “불합격의 토크가 낮다 → <b>토크를 높이자</b>.” 이 결론대로 설비를 조정해도 될까요?</p>
+  </div>
+
+  <div class="card after">
+    <h3>③ After (2) — 토크 구간별로 보기</h3>
+    <div class="flow">File ─┬─ Scatter Plot / Distributions (캡토크, Split by: 합격여부)
+     ├─ Tree ─ Tree Viewer
+     └─ Formula (토크편차 = abs(캡토크 - 15)) ─ Logistic Regression ─ Test and Score</div>
+    <div class="tw"><table>
+      <tr><th>캡토크 구간</th><th>≤12</th><th>12~13.5</th><th>13.5~16.5</th><th>16.5~18</th><th>&gt;18</th></tr>
+      <tr><td>배치 수</td><td>44</td><td>84</td><td>265</td><td>78</td><td>29</td></tr>
+      <tr><td>불량률</td><td class="bad">52.3%</td><td>13.1%</td><td>5.7%</td><td>11.5%</td><td class="bad">44.8%</td></tr>
+    </table></div>
+    <p>토크가 너무 낮아도, 너무 높아도 불량이 납니다. 불합격의 <b>평균</b>이 낮게 나온 것은 낮은 쪽 배치가 더 많았기 때문이고, <b>표준편차가 두 배 가까이 큰 것</b>(3.3 vs 1.8)이 진짜 신호였습니다. “토크를 높이자”를 따르면 오른쪽 위험 구간으로 옮겨 갑니다.</p>
+    <p>Tree Viewer는 양쪽 경계를 바로 찾아 줍니다. 로지스틱 회귀는 직선 관계만 보므로, <code>토크편차</code>를 만들어 넣으면 AUC가 크게 오릅니다(scikit-learn 기준 0.649 → 0.803).</p>
+  </div>
+
+  <div class="card compare">
+    <h3>④ 비교</h3>
+    <div class="tw"><table>
+      <tr><th></th><th>Before</th><th>After</th></tr>
+      <tr><td>관능 판정</td><td>일치율 표 → “검사원마다 다르다”</td><td>편향·산포·피로를 구분해 대응책까지</td></tr>
+      <tr><td>캡 토크</td><td>“토크를 높이자” (위험한 결론)</td><td>관리 범위(대략 13.5~16.5)를 양쪽으로 설정</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<!-- ===================== MODULE D ===================== -->
+<section id="mD">
+  <h2>모듈 D. 조미김 — 엑셀이 잘하는 것, 그리고 그 한계</h2>
+  <p class="small">데이터: <code>sh_laver_qc</code> · 기존 방법: 피벗 테이블</p>
+  <div class="card before">
+    <h3>① Before — 피벗 테이블</h3>
+    <p>삽입 → 피벗 테이블 → 행: <code>원초등급</code>, 값: <code>합격여부</code> 개수(열에 합격여부). 등급별 불량률은 A 4.3% (231), B 22.4% (255), C 58.8% (114)로 엑셀만으로도 분명하게 보입니다. <b>변수 하나가 강할 때는 피벗 테이블이 가장 빠른 도구입니다.</b></p>
+    <p>이제 행에 <code>원초중량</code>(2.8g 미만 여부)과 <code>구이온도</code>(285°C 초과 여부)를 추가해 3단 피벗을 만들어 보십시오.</p>
+  </div>
+  <div class="card stuck">
+    <h3>② 막힘</h3>
+    <p>칸이 12개로 쪼개지고, 일부 칸은 배치가 7~12개뿐입니다(예: A등급·가벼운 원초·고온 8배치, 불량률 0.0%). 이 0%를 믿어도 될까요? 염도, 도유량, 수분활성도까지 넣으면 칸은 수백 개가 되고 대부분 비어 버립니다.</p>
+  </div>
+  <div class="card after">
+    <h3>③ After — 여러 변수를 한 모델로</h3>
+    <div class="flow">File ─ Impute ─┬─ Logistic Regression ─ Nomogram
+               └─ Test and Score (Logistic Regression, Random Forest)</div>
+    <ol>
+      <li>Nomogram에서 각 변수가 불량 확률에 얼마나 기여하는지 한 화면으로 봅니다. 막대가 긴 변수가 영향이 큽니다.</li>
+      <li>Nomogram에서 값을 옮겨 “B등급 원초를 쓰되 구이온도를 낮추면 불량 확률이 얼마나 줄어드는지”를 시뮬레이션합니다.</li>
+      <li>이 데이터에서는 로지스틱 회귀와 랜덤 포레스트의 AUC가 비슷합니다(scikit-learn 기준 0.868 vs 0.864). 관계가 단순할 때는 해석이 쉬운 모델을 고르는 근거가 됩니다.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===================== MODULE E ===================== -->
+<section id="mE">
+  <h2>모듈 E. 외관 검사 — 사람의 눈과 이미지 모델</h2>
+  <div class="note">이미지는 <b>코드로 그린 합성 이미지</b>입니다(128×128 PNG, 8클래스 × 50장 = 400장). 실제 제품 사진이 아니므로 실제 현장보다 훨씬 쉽고, 여기서 나온 정확도를 실제 검사 성능으로 해석하면 안 됩니다.</div>
+
+  <div class="card before">
+    <h3>① Before — 육안 검사 체험</h3>
+    <p>이미지 20장을 한 장씩 보고 정상(OK)·불량(NG)을 판정합니다. 정확도와 걸린 시간을 기록합니다.</p>
+    <div id="quiz" class="quiz">
+      <button class="btn" onclick="quizStart()">육안 검사 시작 (20장)</button>
+    </div>
+  </div>
+
+  <div class="card stuck">
+    <h3>② 막힘</h3>
+    <p>합성 이미지라 대부분 정확히 맞혔을 것입니다. 문제는 <b>양</b>입니다. 위에서 나온 장당 시간으로 하루 생산량(예: 2만 개)을 모두 보려면 몇 시간이 걸리는지 계산해 보십시오. 그 시간 동안 같은 기준을 유지할 수 있을까요? (모듈 C의 검사원4를 떠올려 보십시오.)</p>
+  </div>
+
+  <div class="card after">
+    <h3>③ After — 이미지 임베딩 + 분류기</h3>
+    <div class="tw"><table>
+      <thead><tr><th>폴더(클래스)</th><th>제품</th><th>판정</th><th>불량세부유형(장)</th></tr></thead>
+      <tbody>
+        <tr><td><code>CJ_OK</code> / <code>CJ_NG</code></td><td>어묵</td><td>OK / NG</td><td>정상 50 / 탄자국 34 · 이물질 16</td></tr>
+        <tr><td><code>SH_OK</code> / <code>SH_NG</code></td><td>조미김</td><td>OK / NG</td><td>정상 50 / 핀홀 27 · 찢김 23</td></tr>
+        <tr><td><code>SR_OK</code> / <code>SR_NG</code></td><td>향료병</td><td>OK / NG</td><td>정상 50 / 충전미달 29 · 캡불량 21</td></tr>
+        <tr><td><code>HC_OK</code> / <code>HC_NG</code></td><td>도라지청병</td><td>OK / NG</td><td>정상 50 / 침전 26 · 갈변 24</td></tr>
+      </tbody>
+    </table></div>
+    <div id="gallery" class="gal"></div>
+    <p><b>불러오기</b> (Options → Add-ons에서 <b>Image Analytics</b> 설치 필요)</p>
+    <ul>
+      <li><b>방법 A (URL)</b>: 아래 버튼으로 이미지 주소가 이 저장소의 URL로 들어간 <code>image_meta_url.tab</code>을 내려받아 File 위젯으로 엽니다(GitHub Pages에서 열었을 때만 동작).<div id="tabbox"></div></li>
+      <li><b>방법 B (압축)</b>: <code>qc_images.zip</code>을 풀고 Import Images에서 <code>images</code> 폴더를 지정합니다. 하위 폴더명이 클래스가 됩니다.</li>
+      <li><b>방법 C (특징값만)</b>: <code>image_features.csv</code>를 URL로 엽니다. 픽셀에서 계산한 특징 8개(밝기, 에지강도, RGB 평균 등)와 타깃 <code>판정</code>이 들어 있습니다.</li>
+    </ul>
+    <div class="flow">Import Images ─ Image Embedding ─┬─ Test and Score (Logistic Regression, Random Forest, Neural Network) ─ Confusion Matrix ─ Image Viewer
+                                 ├─ Distances ─ Hierarchical Clustering ─ Image Viewer
+                                 └─ t-SNE</div>
+    <ol>
+      <li>수작업 특징(방법 C)만으로 <code>판정</code>을 예측한 결과와, Image Embedding을 거친 결과를 비교합니다.</li>
+      <li>업체별로 나눠 어느 제품의 불량이 수작업 특징으로 잡기 어려운지 찾습니다(예: 향료병 캡불량은 밝기를 거의 바꾸지 않음).</li>
+      <li>Confusion Matrix에서 오분류 칸을 Image Viewer로 보내 실제 이미지를 확인합니다.</li>
+    </ol>
+  </div>
+
+  <div class="card compare">
+    <h3>④ 비교와 한계</h3>
+    <p>사람은 처음 보는 불량도 알아채지만 느리고 지칩니다. 모델은 빠르고 일정하지만 <b>학습한 적 없는 불량</b>은 모릅니다. 현장에서는 모델이 1차로 거르고 애매한 것만 사람이 보는 방식이 일반적인 출발점입니다. 안전모 착용 분류에서 쓴 “임베딩 → 분류기” 구조가 그대로 적용됩니다.</p>
+  </div>
+</section>
+
+<!-- ===================== MODULE F ===================== -->
+<section id="mF">
+  <h2>모듈 F (선택). 4사 통합 데이터와 k-Means</h2>
+  <div class="card after">
+    <div class="flow">File(integrated_qc) ─ Impute ─ k-Means ─┬─ Silhouette Plot
+                                    ├─ Scatter Plot (Color: Cluster, Shape: 합격여부)
+                                    └─ Box Plot (Cluster × 합격여부)
+File(integrated_qc) ─ Test and Score (vs 업체별 데이터 AUC)</div>
+    <ol>
+      <li>연속 변수 4개로 k=2~6을 비교해 실루엣 점수가 가장 높은 k를 고르고, 군집별 불량률과 업체 구성을 해석합니다.</li>
+      <li>공통 변수만 남긴 통합 데이터의 AUC를 업체별 데이터와 비교합니다(scikit-learn 기준 통합 RF 0.626 vs 업체별 0.80~0.87).</li>
+    </ol>
+    <p class="small">짚을 점: 데이터를 많이 모으는 것보다 <b>공정을 설명하는 변수</b>를 기록하는 것이 중요합니다. 물류센터 입지 k-means와 같은 “군집 → 해석 → 검증” 흐름이지만, 군집이 불량 라벨과 일치해야 할 이유는 없습니다.</p>
+  </div>
+</section>
+
+<section id="wrap">
+  <h2>정리: 무엇이 달라졌나</h2>
+  <div class="tw"><table>
+    <tr><th>모듈</th><th>기존 방법의 결론</th><th>데이터로 다시 본 결과</th></tr>
+    <tr><td>A 어묵</td><td>세균수·세척 주기 무관</td><td>미생물 불량의 원인</td></tr>
+    <tr><td>B 도라지</td><td>실험 160배치로도 애매 / 당도 무관</td><td>온도·시간 동시 상승 시 갈변 38.7% / 제품별로는 모두 유의</td></tr>
+    <tr><td>C 향료</td><td>검사원마다 다르다 / 토크를 높이자</td><td>편향·산포·피로 구분 / 양쪽 관리 한계</td></tr>
+    <tr><td>D 조미김</td><td>등급이 중요 (맞음)</td><td>여러 변수를 한 화면에서, 조건 변경 효과까지</td></tr>
+    <tr><td>E 외관</td><td>정확하지만 느림</td><td>1차 자동 선별 + 사람 확인</td></tr>
+  </table></div>
+  <div class="card">
+    <p><b>기계학습이 대신하지 못하는 것</b></p>
+    <ul>
+      <li><b>인과 확인</b>: 생산 기록에서 찾은 패턴은 상관입니다. 공정 조건을 바꾸기 전에 좁혀진 조건으로 확인 실험을 하십시오.</li>
+      <li><b>관능 품질</b>: 소비자가 느끼는 품질은 사람이 평가해야 합니다. 데이터는 패널 관리를 돕습니다.</li>
+      <li><b>기록되지 않은 원인</b>: 데이터에 없는 변수(원료 로트, 설비 마모 등)는 모델도 모릅니다.</li>
+      <li><b>새로운 불량</b>: 학습한 적 없는 유형은 놓칩니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="submit">
+  <h2>제출물과 평가 기준</h2>
+  <div class="card">
+    <p><b>제출물</b>: (1) 엑셀 파일 — 모듈 A·B·C의 Before 분석표와 처음 쓴 결론, (2) Orange 워크플로 파일(<code>.ows</code>), (3) Before/After 비교 보고서(A4 3~5쪽).</p>
+    <div class="tw"><table>
+      <tr><th>항목</th><th>배점</th><th>기준</th></tr>
+      <tr><td>Before 분석의 충실성</td><td>15</td><td>평균·표준편차·t-검정·피벗을 정확히 수행하고 결론을 문장으로 기록</td></tr>
+      <tr><td>막힘의 진단</td><td>20</td><td>기존 결론이 왜 틀리거나 부족했는지 원인(뭉뚱그린 타깃, 상호작용, 제품 혼합, U자형, 판정자 차이)을 정확히 설명</td></tr>
+      <tr><td>After 분석</td><td>30</td><td>적절한 위젯 구성, 타깃·파생변수 설정, Target class=Fail 기준 지표 해석</td></tr>
+      <tr><td>현장 적용 제안</td><td>20</td><td>관리 기준, 검사원 관리, 확인 실험 설계 등 구체적 제안</td></tr>
+      <tr><td>한계 인식</td><td>15</td><td>가상 데이터의 한계, 상관과 인과의 구분, 모델이 모르는 것</td></tr>
+    </table></div>
+  </div>
+</section>
+
+<section id="instructor">
+  <details>
+    <summary>강사용 참고 (수업 전 접어두기)</summary>
+    <p><b>설계된 생성 규칙 요약</b> — 불량 확률은 아래 변수의 로지스틱 함수로 만들었습니다. 불량유형이 겹치면 Burn/Tear/Weak_Intensity/Low_Brix가 우선합니다.</p>
+    <ul>
+      <li>어묵 Burn: <code>튀김온도</code>↑, <code>튀김시간</code>↑ · Microbial: <code>일반세균수_log</code>↑ (이 값은 <code>중심온도</code>↓, Night 근무조, <code>세척후경과시간</code>↑의 영향) · Soft_Texture: <code>겔강도</code>↓ (<code>어육배합비</code>↓, <code>전분배합비</code>↑의 영향). 센서 이상치: CJ-0006(201.5), CJ-0117(198.0), CJ-0150(121.0).</li>
+      <li>조미김 Tear: 원초 등급 C쪽, <code>원초중량</code>↓, <code>구이온도</code>↑ · Pinhole: <code>핀홀수</code>↑ · Moisture_Absorption: <code>수분활성도</code>↑ (<code>작업장습도</code>의 영향).</li>
+      <li>향료 Seal_Defect: <code>캡토크</code>가 15에서 <b>양방향으로</b> 멀어질수록↑(U자형) · Underfill: <code>충전량편차</code>↓ · Weak_Intensity: <code>향강도</code>↓. 점도·굴절률 결측 190건은 모두 Powder.</li>
+      <li>도라지 Low_Brix: <b>제품유형별 규격</b>(Syrup 65, TeaBase 45, Drink 12 °Brix) 대비 <code>당도_Brix</code>가 낮을수록↑ · Browning: <code>갈변도_A420</code>↑(<code>농축온도</code>·<code>농축시간</code>이 함께 높을 때 더 커짐) · Microbial: <code>일반세균수_log</code>↑(<code>충전온도</code>↓, <code>세척후경과시간</code>↑의 영향) · Low_Saponin: <code>조사포닌_mg_g</code>↓(<code>원료산지</code> Imported에서 낮음, 추출시간·온도의 영향). Low_Saponin 비율은 Imported 19.0%, Domestic_B 1.1%, Domestic_A 0%.</li>
+      <li>통합 데이터는 업체별 데이터에서 공통 항목만 옮겨 만든 것이라 도메인 변수 대부분이 빠집니다.</li>
+    </ul>
+    <p><b>참고 성능</b> — Python scikit-learn 기본 설정, 평균 대치, 5겹 교차검증 AUC. Orange 기본 설정·10겹에서는 값이 다소 다릅니다.</p>
+    <div class="tw"><table>
+      <tr><th>데이터</th><th>Random Forest</th><th>Logistic Regression</th><th>비고</th></tr>
+      <tr><td>어묵</td><td>0.869</td><td>0.817</td><td></td></tr>
+      <tr><td>조미김</td><td>0.864</td><td>0.868</td><td>관계가 단순 → 비슷</td></tr>
+      <tr><td>향료</td><td>0.801</td><td>0.649</td><td>토크편차 추가 시 LR 0.803</td></tr>
+      <tr><td>도라지</td><td>0.805</td><td>0.739</td><td>당도편차 추가 시 RF 0.859 · LR 0.793 / 당도미달만: 당도_Brix 0.657 → 당도편차 0.916</td></tr>
+      <tr><td>통합</td><td>0.626</td><td>0.615</td><td></td></tr>
+    </table></div>
+    <p><b>이미지</b> — 수작업 특징 8개만, 5겹 정확도: 판정 RF 0.847 · LR 0.610, 클래스(8종) RF 0.938 · LR 0.845, 업체별 판정 RF 어묵 0.93 · 조미김 0.96 · 향료병 0.87 · 도라지청병 1.00.</p>
+    <p><b>실험 시뮬레이터(모듈 B)</b> — 생산 데이터와 같은 갈변 생성식을 씁니다: 갈변도 = 0.35 + 0.05×[(T−85)/4 + (t−60)/10] + 0.06×max(T−88,0)×max(t−65,0)/10 + 오차(SD 0.04), 갈변 확률 = logistic(−3.4 + 30×(갈변도−0.45)). 기준 85°C·60분에서 한 요인만 바꾸면 갈변 확률은 대체로 수 %~10%대에 머물고, 두 요인을 함께 올리면(예: 92°C·80분) 거의 모든 배치가 갈변합니다. 학생이 이 조합을 시도하지 않도록 유도하지 말고, 예산 안에서 자연스럽게 고르게 두십시오.</p>
+    <p><b>관능 패널</b> — 검사원 점수 = 기준향강도 + 편향 + 오차. 편향: 검사원2 +0.6, 검사원3 −0.4. 오차 SD: 0.3/0.4/0.5/0.3(검사원4는 평가순서에 따라 최대 +1.2 증가)/0.9.</p>
+    <p class="small">Formula의 조건식(<code>... if ... else ...</code>)과 한글 변수명 계산이 Orange에서 동작하는지 수업 전에 확인하십시오. 안 되면 Select Rows로 제품별로 나눠 각각 계산합니다.</p>
+  </details>
+</section>
+
+<section id="deploy">
+  <h2>GitHub Pages 배포 방법</h2>
+  <div class="card">
+    <ol>
+      <li>GitHub에서 공개(Public) 저장소를 만들고 이 폴더 전체(<code>index.html</code>, <code>data/</code>, <code>images/</code>, <code>scripts/</code>, <code>README.md</code>)를 업로드합니다.</li>
+      <li>저장소 <b>Settings → Pages</b>에서 Source를 <i>Deploy from a branch</i>, Branch를 <code>main</code> / <code>(root)</code>로 저장합니다.</li>
+      <li>1~2분 뒤 <code>https://사용자명.github.io/저장소명/</code>에서 이 강의록이 열리고, 데이터 주소가 자동으로 채워집니다.</li>
+    </ol>
+    <p class="small">데이터 재생성: <code>scripts/</code>의 <code>make_data.py → make_panel.py → make_images.py → make_excel.py</code> 순서로 <code>python 스크립트 .</code> 실행 (numpy·pandas·Pillow 필요, 난수 시드 고정).</p>
+  </div>
+</section>
+</main>
+<footer>교육용 가상 데이터 · 실제 기업 데이터 아님 · Orange3 Data Mining 실습용</footer>
+
+<script>
+const FILES=[
+ ["어묵 (CJ 테마)","cj_fishcake_qc"],["조미김 (삼해상사 테마)","sh_laver_qc"],["향료 (세림향료 테마)","sr_flavor_qc"],["도라지 (황초원 테마)","hc_doraji_qc"],["4사 통합","integrated_qc"]];
+const EXCEL=["cj_fishcake_qc","sh_laver_qc","sr_flavor_qc","hc_doraji_qc","sr_sensory_panel"];
+const CLS=["CJ_OK","CJ_NG","SH_OK","SH_NG","SR_OK","SR_NG","HC_OK","HC_NG"];
+let base=null, raw=null;
+function computeBase(){
+  const h=location.hostname;
+  if(location.protocol.startsWith("http")){
+    base=new URL("data/",location.href).href;
+    const m=h.match(/^([^.]+)\.github\.io$/);
+    if(m){const repo=location.pathname.split("/").filter(Boolean)[0]; if(repo) raw=`https://raw.githubusercontent.com/${m[1]}/${repo}/main/data/`;}
+  } else {
+    document.getElementById("cfgbox").style.display="block";
+    let u="",r=""; try{u=localStorage.getItem("qc_user")||"";r=localStorage.getItem("qc_repo")||"";}catch(e){}
+    if(u&&r){document.getElementById("ghUser").value=u;document.getElementById("ghRepo").value=r;base=`https://${u}.github.io/${r}/data/`;raw=`https://raw.githubusercontent.com/${u}/${r}/main/data/`;}
+  }
+}
+function setRepo(){
+  const u=document.getElementById("ghUser").value.trim(), r=document.getElementById("ghRepo").value.trim();
+  if(!u||!r) return;
+  try{localStorage.setItem("qc_user",u);localStorage.setItem("qc_repo",r);}catch(e){}
+  base=`https://${u}.github.io/${r}/data/`; raw=`https://raw.githubusercontent.com/${u}/${r}/main/data/`; render();
+}
+function row(label,url){
+  return `<div class="lbl">${label}</div><div class="url"><input readonly value="${url}" onclick="this.select()"><button onclick="cp(this,'${url}')">복사</button></div>`;
+}
+function render(){
+  const el=document.getElementById("urls");
+  if(!base){el.innerHTML='<p class="small">저장소 정보를 입력하면 주소가 표시됩니다.</p>';return;}
+  let s="";
+  for(const [lab,f] of FILES){ s+=row(`${lab} — Orange용(타깃 자동 지정)`, base+f+"_orange.csv"); s+=row(`${lab} — 일반 CSV`, base+f+".csv"); }
+  s+=row("관능 패널 (모듈 C, 세로형)", base+"sr_sensory_panel_long.csv");
+  s+=row("관능 패널 (모듈 C, 가로형)", base+"sr_sensory_panel.csv");
+  s+=row("이미지 특징값 (모듈 E 방법 C)", base+"image_features.csv");
+  s+=`<div class="lbl">엑셀용 파일 (Before 단계)</div><div class="url" style="flex-wrap:wrap">`+EXCEL.map(f=>`<a class="btn alt" href="${base}excel/${f}_excel.csv" download>${f}</a>`).join(" ")+`</div>`;
+  s+=`<div class="lbl">이미지 압축파일 (모듈 E 방법 B)</div><div class="url"><a class="btn alt" href="${base}qc_images.zip">qc_images.zip 내려받기</a></div>`;
+  if(raw) s+=`<p class="small">GitHub Pages 주소가 열리지 않으면 raw 주소를 쓰십시오: <code>${raw}파일명.csv</code></p>`;
+  el.innerHTML=s;
+}
+function cp(btn,t){
+  const done=()=>{const o=btn.textContent;btn.textContent="복사됨";setTimeout(()=>btn.textContent=o,1200);};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(done).catch(()=>fallback(t,done));} else fallback(t,done);
+}
+function fallback(t,done){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");done();}catch(e){}a.remove();}
+function gallery(){
+  const g=document.getElementById("gallery"); let s="";
+  for(const c of CLS) for(const i of [0,1]) {const n=String(i).padStart(3,"0"); s+=`<figure style="margin:0"><img loading="lazy" src="images/${c}/${c}_${n}.png" alt="${c}"><figcaption>${c}</figcaption></figure>`;}
+  g.innerHTML=s;
+}
+async function tabButton(){
+  const box=document.getElementById("tabbox");
+  if(!location.protocol.startsWith("http")){box.innerHTML='<p class="small">GitHub Pages 주소로 열면 버튼이 나타납니다.</p>';return;}
+  const root=new URL("./",location.href).href;
+  try{
+    const txt=await (await fetch("data/image_meta.tab")).text();
+    const lines=txt.split("\n").map((l,i)=>i<3||!l?l:root+l);
+    const blob=new Blob([lines.join("\n")],{type:"text/tab-separated-values"});
+    box.innerHTML=`<a class="btn" download="image_meta_url.tab" href="${URL.createObjectURL(blob)}">image_meta_url.tab 내려받기</a>`;
+  }catch(e){box.innerHTML='<p class="small">파일을 불러오지 못했습니다. 방법 B를 쓰십시오.</p>';}
+}
+
+// ---- Module B: one-factor experiment simulator (same generating rule as the dataset) ----
+let runs=0; const BUDGET=8;
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function runSim(){
+  if(runs>=BUDGET) return;
+  const T=+document.getElementById("simT").value, M=+document.getElementById("simM").value;
+  let k=0;
+  for(let i=0;i<20;i++){
+    const heat=(T-85)/4+(M-60)/10;
+    const a=0.35+0.05*heat+0.06*Math.max(T-88,0)*Math.max(M-65,0)/10+0.04*gauss();
+    const p=1/(1+Math.exp(-(-3.4+30*(a-0.45))));
+    if(Math.random()<p) k++;
+  }
+  runs++;
+  const tr=document.createElement("tr"); tr.innerHTML=`<td>${runs}</td><td>${T}°C</td><td>${M}분</td><td>${k} / 20</td>`;
+  document.getElementById("simtab").appendChild(tr);
+  updBudget();
+  if(runs>=BUDGET) document.getElementById("simmsg").innerHTML="예산을 모두 썼습니다(160배치, 라인 약 4일 · 가상). 결론을 적은 뒤 ③ After로 넘어가십시오.";
+}
+function updBudget(){document.getElementById("budget").textContent=`남은 실험 ${BUDGET-runs}회`;}
+// ---- Module E: visual inspection quiz ----
+let Q=[],qi=0,qok=0,qt0=0;
+function quizStart(){
+  Q=[]; const used=new Set();
+  while(Q.length<20){const c=CLS[Math.floor(Math.random()*CLS.length)], n=Math.floor(Math.random()*50), id=c+n; if(used.has(id)) continue; used.add(id); Q.push({c,n});}
+  qi=0;qok=0;qt0=performance.now(); quizShow();
+}
+function quizShow(){
+  const q=Q[qi], f=`images/${q.c}/${q.c}_${String(q.n).padStart(3,"0")}.png`;
+  document.getElementById("quiz").innerHTML=`<div class="small">${qi+1} / 20</div><img src="${f}" alt="검사 이미지"><div class="qb"><button class="btn" onclick="quizAns('OK')">정상 OK</button><button class="btn" style="background:#c0392b" onclick="quizAns('NG')">불량 NG</button></div>`;
+}
+function quizAns(a){
+  if(Q[qi].c.endsWith(a)) qok++;
+  qi++;
+  if(qi<20) return quizShow();
+  const sec=(performance.now()-qt0)/1000, per=sec/20, day=20000*per/3600;
+  document.getElementById("quiz").innerHTML=`<p><b>정확도 ${qok}/20 (${(qok*5)}%)</b> · 총 ${sec.toFixed(1)}초 · 장당 ${per.toFixed(2)}초</p><p class="small">이 속도로 하루 2만 개를 쉬지 않고 보면 약 <b>${day.toFixed(1)}시간</b>이 걸립니다.</p><button class="btn alt" onclick="quizStart()">다시 하기</button>`;
+}
+computeBase(); render(); gallery(); tabButton(); updBudget();
+</script>
+</body>
+</html>
