@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KBO 2025 타자·투수 데이터 — Orange3 군집분석 실습</title>
+<style>
+:root{--ink:#1d2327;--sub:#5b6770;--line:#e3e6e8;--bg:#fafaf7;--card:#fff;--acc:#0f6e56;--acc2:#b4521e;--code:#f1f3f2}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;font-size:16px}
+header{background:var(--acc);color:#fff;padding:28px 18px 22px}
+header h1{margin:0 0 6px;font-size:1.4rem;line-height:1.35}
+header p{margin:0;opacity:.9;font-size:.92rem}
+main{max-width:860px;margin:0 auto;padding:8px 16px 60px}
+section{margin-top:30px}
+h2{font-size:1.15rem;border-left:4px solid var(--acc);padding-left:10px;margin:0 0 12px}
+h3{font-size:1rem;margin:20px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+.note{background:#fff7ec;border:1px solid #f1d6b4;border-radius:8px;padding:12px 14px;font-size:.9rem}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.88em;word-break:break-all}
+.url{display:flex;gap:6px;align-items:center;margin:6px 0}
+.url input{flex:1;min-width:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;padding:8px;border:1px solid var(--line);border-radius:6px;background:#fbfcfb}
+.url button,.btn{border:0;background:var(--acc);color:#fff;border-radius:6px;padding:8px 10px;font-size:.8rem;cursor:pointer;white-space:nowrap}
+.btn.alt{background:#fff;color:var(--acc);border:1px solid var(--acc)}
+.lbl{font-size:.86rem;color:var(--sub);margin-top:12px;font-weight:600}
+.tw{overflow-x:auto;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:.86rem;background:#fff}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f2f5f3}
+.small{font-size:.8rem;color:var(--sub)}
+.flow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;background:#14201b;color:#d8efe5;border-radius:8px;padding:12px;overflow-x:auto;white-space:pre}
+ol,ul{padding-left:20px}
+li{margin:4px 0}
+footer{max-width:860px;margin:0 auto;padding:20px 16px 40px;font-size:.8rem;color:var(--sub)}
+</style>
+</head>
+<body>
+<header>
+  <h1>KBO 2025 타자 · 투수 데이터</h1>
+  <p>Orange3 군집분석 실습용 CSV 2종 — URL 위젯으로 바로 불러오기</p>
+</header>
+<main>
+
+<section id="files">
+  <h2>1. 데이터 파일</h2>
+  <div class="card">
+    <div class="lbl">타자 (155명 · 16개 열)</div>
+    <div class="url">
+      <input id="u1" readonly value="https://zizla.github.io/polytech/kbo-orange3/kbo_2025_hitters_orange3.csv">
+      <button onclick="cp(this,document.getElementById('u1').value)">URL 복사</button>
+      <a class="btn alt" href="kbo_2025_hitters_orange3.csv" download>내려받기</a>
+    </div>
+    <div class="lbl">투수 (139명 · 19개 열)</div>
+    <div class="url">
+      <input id="u2" readonly value="https://zizla.github.io/polytech/kbo-orange3/kbo_2025_pitchers_orange3.csv">
+      <button onclick="cp(this,document.getElementById('u2').value)">URL 복사</button>
+      <a class="btn alt" href="kbo_2025_pitchers_orange3.csv" download>내려받기</a>
+    </div>
+    <p class="small">인코딩 UTF-8, 첫 줄이 열 이름(헤더), 쉼표 구분. Orange3의 <code>File</code> 위젯에서도 같은 URL을 붙여넣을 수 있습니다.</p>
+  </div>
+</section>
+
+<section id="load">
+  <h2>2. Orange3에서 불러오기</h2>
+  <ol>
+    <li><b>File</b> 위젯을 캔버스에 놓고, 위젯 안의 <b>URL</b> 탭을 엽니다.</li>
+    <li>위에서 복사한 주소를 붙여넣고 <b>Apply</b>(또는 Enter)를 누릅니다.</li>
+    <li>오른쪽 정보 상자에 <code>155 instances</code> / <code>139 instances</code>가 표시되면 정상적으로 읽힌 것입니다.</li>
+  </ol>
+  <p class="small">네트워크가 막힌 강의장에서는 <b>내려받기</b>로 저장한 뒤 File 위젯의 <b>File</b> 탭에서 선택해도 됩니다.</p>
+</section>
+
+<section id="cluster">
+  <h2>3. 군집분석 워크플로</h2>
+  <div class="flow">File → Select Columns → Preprocess → k-Means ─┬→ Scatter Plot
+                                              ├→ Data Table
+                                              └→ Box Plot</div>
+  <div class="card">
+    <h3>열 고르기 (Select Columns)</h3>
+    <ul>
+      <li><b>특징(Features)</b>: 수치형 지표만 넣습니다. 예) 타자 — <code>AVG, HR, RBI, R, H, TB, PA</code> / 투수 — <code>ERA, WHIP, IP, SO, W, SV, HLD</code></li>
+      <li><b>메타(Meta)</b>로 보낼 열: <code>선수명</code>, <code>팀명</code>, <code>year</code> — 이름은 결과 라벨로만 쓰고 거리 계산에는 넣지 않습니다. <code>year</code>는 전부 2025라 값이 하나뿐이므로 특징에서 빼야 합니다.</li>
+      <li><b>타깃(Target)</b>: 지도학습이 아니므로 비워 둡니다.</li>
+    </ul>
+    <h3>정규화 (Preprocess)</h3>
+    <ul>
+      <li>타율(0.2~0.4)과 타점·루타수(수십~수백)는 단위가 달라, <b>Normalize</b>(평균 0·표준편차 1)를 먼저 적용합니다. 정규화 없이 k-Means를 돌리면 스케일이 큰 열이 거리를 독점합니다.</li>
+    </ul>
+    <h3>군집화 (k-Means)</h3>
+    <ul>
+      <li>k 값을 2 → 3 → 4로 바꿔 가며 실루엣 점수와 산점도를 비교합니다.</li>
+      <li>"타격형 / 장타형 / 수비·주루형" 같은 해석은 <b>Data Table</b>에서 클러스터별 선수 명단을 눈으로 확인한 뒤 붙입니다.</li>
+    </ul>
+    <h3>결과 해석 (Scatter Plot · Box Plot)</h3>
+    <ul>
+      <li><b>Scatter Plot</b>: x·y에 대표 지표 2개(예: AVG–HR)를 넣고 <b>Color</b>를 <code>Cluster</code>로 지정합니다.</li>
+      <li><b>Box Plot</b>: Variables에 지표를 넣고 Subgroups를 <code>Cluster</code>로 두면 클러스터 간 분포 차이가 한눈에 보입니다.</li>
+    </ul>
+  </div>
+  <div class="note">
+    <b>해석 주의</b> — 군집은 "정답 분류"가 아니라 데이터가 만든 묶음입니다. k 값과 투입 지표를 바꾸면 결과가 달라지므로, 결론은 "어떤 지표 조합에서 어떤 묶음이 안정적으로 나오는가"로 서술합니다.<br>
+    타자 데이터는 규정타석 미달(PA&lt;100) 선수를, 투수 데이터는 소화 이닝 미달(IP&lt;30) 선수를 제외했습니다. 시즌 중 이적 선수는 소속팀 기록 기준으로 한 번만 집계됩니다.
+  </div>
+</section>
+
+<section id="cols">
+  <h2>4. 열 설명</h2>
+  <div class="tw">
+    <table>
+      <tr><th>타자 (155명)</th><th>뜻</th></tr>
+      <tr><td><code>선수명</code>, <code>팀명</code>, <code>year</code></td><td>이름 · 소속팀 · 시즌(전부 2025)</td></tr>
+      <tr><td><code>G</code> <code>PA</code> <code>AB</code></td><td>경기 · 타석 · 타수</td></tr>
+      <tr><td><code>AVG</code></td><td>타율</td></tr>
+      <tr><td><code>R</code> <code>H</code> <code>2B</code> <code>3B</code> <code>HR</code></td><td>득점 · 안타 · 2루타 · 3루타 · 홈런</td></tr>
+      <tr><td><code>TB</code> <code>RBI</code></td><td>루타수 · 타점</td></tr>
+      <tr><td><code>SAC</code> <code>SF</code></td><td>희생번트 · 희생플라이</td></tr>
+    </table>
+  </div>
+  <div class="tw">
+    <table>
+      <tr><th>투수 (139명)</th><th>뜻</th></tr>
+      <tr><td><code>선수명</code>, <code>팀명</code>, <code>year</code></td><td>이름 · 소속팀 · 시즌(전부 2025)</td></tr>
+      <tr><td><code>ERA</code> <code>WHIP</code></td><td>평균자책점 · 이닝당 출루허용(낮을수록 좋음)</td></tr>
+      <tr><td><code>G</code> <code>IP</code></td><td>등판 경기 · 소화 이닝</td></tr>
+      <tr><td><code>W</code> <code>L</code> <code>SV</code> <code>HLD</code> <code>WPCT</code></td><td>승 · 패 · 세이브 · 홀드 · 승률</td></tr>
+      <tr><td><code>H</code> <code>HR</code> <code>BB</code> <code>HBP</code> <code>SO</code></td><td>피안타 · 피홈런 · 볼넷 · 사구 · 탈삼진</td></tr>
+      <tr><td><code>R</code> <code>ER</code></td><td>실점 · 자책점</td></tr>
+    </table>
+  </div>
+  <p class="small">출처: 2025 시즌 KBO 리그 기록 집계. 교육·실습 목적의 공개 기록 데이터입니다.</p>
+</section>
+
+</main>
+<footer>교육·실습용 자료입니다. 데이터 관련 문의는 강사에게 직접 하십시오.</footer>
+<script>
+function cp(btn,t){
+  const done=()=>{const o=btn.textContent;btn.textContent="복사됨";setTimeout(()=>{btn.textContent=o;},1200);};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(done).catch(()=>fallback(t,done));}
+  else fallback(t,done);
+}
+function fallback(t,done){
+  const a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";
+  document.body.appendChild(a);a.select();
+  try{document.execCommand("copy");done();}catch(e){}
+  a.remove();
+}
+</script>
+</body>
+</html>
