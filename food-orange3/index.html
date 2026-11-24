@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>식품 분류 데이터셋 5종 — Orange3 분류 실습</title>
+<style>
+:root{--ink:#1d2327;--sub:#5b6770;--line:#e3e6e8;--bg:#fafaf7;--card:#fff;--acc:#0f6e56;--acc2:#b4521e;--code:#f1f3f2}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;font-size:16px}
+header{background:var(--acc);color:#fff;padding:28px 18px 22px}
+header h1{margin:0 0 6px;font-size:1.4rem;line-height:1.35}
+header p{margin:0;opacity:.9;font-size:.92rem}
+main{max-width:900px;margin:0 auto;padding:8px 16px 60px}
+section{margin-top:30px}
+h2{font-size:1.15rem;border-left:4px solid var(--acc);padding-left:10px;margin:0 0 12px}
+h3{font-size:1rem;margin:20px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+.note{background:#fff7ec;border:1px solid #f1d6b4;border-radius:8px;padding:12px 14px;font-size:.9rem}
+.warn{background:#fdf0ee;border:1px solid #f0c4bc;border-radius:8px;padding:12px 14px;font-size:.9rem}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.88em;word-break:break-all}
+.url{display:flex;gap:6px;align-items:center;margin:6px 0}
+.url input{flex:1;min-width:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.76rem;padding:8px;border:1px solid var(--line);border-radius:6px;background:#fbfcfb}
+.url button,.btn{border:0;background:var(--acc);color:#fff;border-radius:6px;padding:8px 10px;font-size:.78rem;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+.btn.alt{background:#fff;color:var(--acc);border:1px solid var(--acc)}
+.lbl{font-size:.86rem;color:var(--sub);margin-top:12px;font-weight:600}
+.lbl:first-child{margin-top:0}
+.tw{overflow-x:auto;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:.84rem;background:#fff}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f2f5f3}
+td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.small{font-size:.8rem;color:var(--sub)}
+.flow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;background:#14201b;color:#d8efe5;border-radius:8px;padding:12px;overflow-x:auto;white-space:pre}
+ol,ul{padding-left:20px}
+li{margin:4px 0}
+.tag{display:inline-block;font-size:.72rem;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--sub);background:#fff;margin-left:6px;vertical-align:middle}
+footer{max-width:900px;margin:0 auto;padding:20px 16px 40px;font-size:.8rem;color:var(--sub)}
+</style>
+</head>
+<body>
+<header>
+  <h1>식품 분류 데이터셋 5종</h1>
+  <p>Kaggle 원본 CSV 9개 — Orange3 분류 실습용으로 바로 불러오기</p>
+</header>
+<main>
+
+<section id="summary">
+  <h2>1. 한눈에 보기</h2>
+  <div class="tw">
+    <table>
+      <tr><th>데이터셋</th><th>파일</th><th>인스턴스</th><th>열</th><th>타깃 열</th><th>클래스</th><th>크기</th></tr>
+      <tr>
+        <td>① 수산물 신선도 (e-nose)</td><td>5개 (어종별)</td>
+        <td class="num">49,608 ~ 78,238</td><td class="num">11</td>
+        <td><code>label</code></td><td>2 (<code>1</code> 신선 · <code>2</code> 비신선)</td><td class="num">22.7 MB</td>
+      </tr>
+      <tr>
+        <td>② 식품 부패 IoT 센서</td><td>1개</td>
+        <td class="num">150,830</td><td class="num">16</td>
+        <td><code>Target_Spoilage_Class</code></td><td>3 (Fresh · Acceptable · Spoiled)</td><td class="num">14.9 MB</td>
+      </tr>
+      <tr>
+        <td>③ 우유 품질 등급</td><td>1개</td>
+        <td class="num">1,059</td><td class="num">8</td>
+        <td><code>Grade</code></td><td>3 (low · medium · high)</td><td class="num">0.03 MB</td>
+      </tr>
+      <tr>
+        <td>④ 레드 와인 품질</td><td>1개</td>
+        <td class="num">1,599</td><td class="num">12</td>
+        <td><code>quality</code></td><td>6 (3 ~ 8)</td><td class="num">0.10 MB</td>
+      </tr>
+      <tr>
+        <td>⑤ 커피 품질 (CQI)</td><td>1개</td>
+        <td class="num">207</td><td class="num">41</td>
+        <td><code>Quality_Class</code> <span class="tag">파생</span></td><td>4 (A · B · C · D 등급)</td><td class="num">0.11 MB</td>
+      </tr>
+    </table>
+  </div>
+  <p class="small">모든 파일은 UTF-8(BOM 없음), 쉼표(,) 구분, 첫 줄 헤더입니다. Orange3에서 <code>?</code>로 표시되는 빈 칸은 결측치이며, 수치형·범주형 모두 결측이 있는 채로 그대로 배포했습니다(임의 대체·보간 없음).</p>
+</section>
+
+<section id="files">
+  <h2>2. 데이터 파일 · URL</h2>
+
+  <div class="card">
+    <h3>① 수산물 신선도 — 전자코 8종 가스 센서 <span class="tag">CC0</span></h3>
+    <p class="small">어종별 파일 5개. 각 1초 간격 약 20시간 측정, 11개 열(가스 농도 8 + <code>label</code> + <code>Time</code> + <code>TVC</code>).</p>
+    <div class="lbl">대구 cod — 78,238행 · 5.00 MB · label 1:21,600 / 2:56,638</div>
+    <div class="url">
+      <input id="u1" readonly value="https://zizla.github.io/polytech/food-orange3/fish_freshness_cod.csv">
+      <button onclick="cp(this,document.getElementById('u1').value)">URL 복사</button>
+      <a class="btn alt" href="fish_freshness_cod.csv" download>내려받기</a>
+    </div>
+    <div class="lbl">꽃게 crab — 68,491행 · 5.02 MB · label 1:21,600 / 2:46,891</div>
+    <div class="url">
+      <input id="u2" readonly value="https://zizla.github.io/polytech/food-orange3/fish_freshness_crab.csv">
+      <button onclick="cp(this,document.getElementById('u2').value)">URL 복사</button>
+      <a class="btn alt" href="fish_freshness_crab.csv" download>내려받기</a>
+    </div>
+    <div class="lbl">연어 salmon — 72,671행 · 4.85 MB · label 1:21,600 / 2:51,071</div>
+    <div class="url">
+      <input id="u3" readonly value="https://zizla.github.io/polytech/food-orange3/fish_freshness_salmon.csv">
+      <button onclick="cp(this,document.getElementById('u3').value)">URL 복사</button>
+      <a class="btn alt" href="fish_freshness_salmon.csv" download>내려받기</a>
+    </div>
+    <div class="lbl">새우 shrimp — 49,608행 · 3.46 MB · label 1:21,600 / 2:28,008</div>
+    <div class="url">
+      <input id="u4" readonly value="https://zizla.github.io/polytech/food-orange3/fish_freshness_shrimp.csv">
+      <button onclick="cp(this,document.getElementById('u4').value)">URL 복사</button>
+      <a class="btn alt" href="fish_freshness_shrimp.csv" download>내려받기</a>
+    </div>
+    <div class="lbl">참치 tuna — 67,969행 · 4.40 MB · label 1:21,600 / 2:46,369</div>
+    <div class="url">
+      <input id="u5" readonly value="https://zizla.github.io/polytech/food-orange3/fish_freshness_tuna.csv">
+      <button onclick="cp(this,document.getElementById('u5').value)">URL 복사</button>
+      <a class="btn alt" href="fish_freshness_tuna.csv" download>내려받기</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>② 식품 부패 IoT 센서 데이터 <span class="tag">CC0</span></h3>
+    <p class="small">창고 → 운송 → 소매까지 10,000개 팩의 이력, 16개 열.</p>
+    <div class="lbl">food_spoilage_iot — 150,830행 · 16열 · 14.89 MB · Fresh 79,675 / Spoiled 49,053 / Acceptable 20,985 / 타깃 결측 1,117</div>
+    <div class="url">
+      <input id="u6" readonly value="https://zizla.github.io/polytech/food-orange3/food_spoilage_iot.csv">
+      <button onclick="cp(this,document.getElementById('u6').value)">URL 복사</button>
+      <a class="btn alt" href="food_spoilage_iot.csv" download>내려받기</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>③ 우유 품질 등급</h3>
+    <div class="lbl">milk_quality — 1,059행 · 8열 · 0.03 MB · low 429 / medium 374 / high 256</div>
+    <div class="url">
+      <input id="u7" readonly value="https://zizla.github.io/polytech/food-orange3/milk_quality.csv">
+      <button onclick="cp(this,document.getElementById('u7').value)">URL 복사</button>
+      <a class="btn alt" href="milk_quality.csv" download>내려받기</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>④ 레드 와인 품질 (Vinho Verde) <span class="tag">UCI</span></h3>
+    <div class="lbl">red_wine_quality — 1,599행 · 12열 · 0.10 MB · quality 3:10 / 4:53 / 5:681 / 6:638 / 7:199 / 8:18</div>
+    <div class="url">
+      <input id="u8" readonly value="https://zizla.github.io/polytech/food-orange3/red_wine_quality.csv">
+      <button onclick="cp(this,document.getElementById('u8').value)">URL 복사</button>
+      <a class="btn alt" href="red_wine_quality.csv" download>내려받기</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⑤ 커피 품질 (CQI 아라비카) <span class="tag">파생 타깃</span></h3>
+    <div class="lbl">coffee_cqi_arabica — 207행 · 41열 · 0.11 MB · A(86점 이상) 18 / B(84~86) 75 / C(82~84) 86 / D(82점 미만) 28</div>
+    <div class="url">
+      <input id="u9" readonly value="https://zizla.github.io/polytech/food-orange3/coffee_cqi_arabica.csv">
+      <button onclick="cp(this,document.getElementById('u9').value)">URL 복사</button>
+      <a class="btn alt" href="coffee_cqi_arabica.csv" download>내려받기</a>
+    </div>
+    <p class="small"><code>Quality_Class</code>는 원본 <code>Total Cup Points</code> 값에 구간 규칙만 적용해 맨 뒤에 붙인 열입니다(원본 행·값은 그대로). 규칙: 86 이상 A / 84 이상 B / 82 이상 C / 그 외 D.</p>
+  </div>
+
+  <p class="small">파일 용량이 큰 ①·②는 Orange3의 URL 탭에서 처음 받을 때 수십 초 걸릴 수 있습니다. 강의장 네트워크가 느리면 <b>내려받기</b>로 미리 저장한 뒤 File 탭에서 선택하십시오.</p>
+</section>
+
+<section id="load">
+  <h2>3. Orange3에서 불러오기</h2>
+  <ol>
+    <li><b>File</b> 위젯을 캔버스에 놓고 위젯 안의 <b>URL</b> 탭을 엽니다.</li>
+    <li>위에서 복사한 주소를 붙여넣고 <b>Apply</b>(또는 Enter).</li>
+    <li>오른쪽 정보 상자에 행 수(예: <code>1059 instances</code>)와 열 수가 표시되면 정상입니다. 타깃 열이 <code>?</code>로 남아 있으면 4단계에서 지정합니다.</li>
+  </ol>
+  <p class="small">받은 파일은 캐시에 남으므로 같은 강의 중 다시 불러올 때는 즉시 열립니다.</p>
+</section>
+
+<section id="flow">
+  <h2>4. 분류 워크플로</h2>
+  <div class="flow">File → Select Columns(타깃 지정) → Test and Score ─┬→ Confusion Matrix
+                                                 ├→ Tree (규칙 시각화)
+                                                 ├→ Random Forest
+                                                 ├→ Logistic Regression
+                                                 └→ Predictions</div>
+
+  <div class="card">
+    <h3>① Select Columns — 타깃 지정</h3>
+    <ul>
+      <li>타깃 열을 오른쪽 <b>Target</b> 상자로 끌어다 놓습니다(데이터셋별 타깃은 5장 참고).</li>
+      <li>이름·ID·날짜 같은 식별용 열은 <b>Meta</b>로 보냅니다. 숫자 ID를 특징으로 두면 모델이 ID를 외웁니다.</li>
+      <li>값이 하나뿐인 열(분산 없음)은 <b>Ignore</b>로 보냅니다.</li>
+    </ul>
+
+    <h3>② Test and Score — 모델 비교</h3>
+    <ul>
+      <li>기본값은 <b>Cross validation, 5 folds, Stratified</b>이며, 이것으로 충분합니다.</li>
+      <li>Learners에 <b>Tree</b>·<b>Random Forest</b>·<b>Logistic Regression</b>을 연결하면 한 표에서 AUC·CA·F1을 나란히 비교합니다.</li>
+      <li>클래스가 불균형한 데이터(②·④)에서는 AUC와 함께 <b>F1</b>·<b>Precision</b>·<b>Recall</b>을 보고, Target Class를 소수 클래스로 바꿔 확인합니다.</li>
+    </ul>
+
+    <h3>③ Confusion Matrix — 어디서 틀리는가</h3>
+    <ul>
+      <li>Test and Score의 결과 행을 선택한 뒤 Confusion Matrix를 열면 예측−실제 교차표가 나옵니다.</li>
+      <li>부패 판정(②)에서는 <b>Fresh를 Spoiled로 놓치는 경우</b>(위험)와 그 반대(과잉 폐기, 비용)를 구분해 해석합니다.</li>
+    </ul>
+
+    <h3>④ Tree — 규칙 읽기</h3>
+    <ul>
+      <li>Tree 위젯에서 트리 깊이를 3~4로 줄이고, 노드를 눌러 조건과 분포를 읽습니다. "TVC가 …" 같은 규칙이 나오면 그 열이 정답을 그대로 담고 있다는 신호입니다(5장 주의 참고).</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <b>전처리 팁</b> — ②의 센서 ADC 값(0~65535)과 경과 시간은 단위가 크게 다릅니다. Logistic Regression·kNN을 쓸 때는 <b>Preprocess</b>의 Normalize를 앞에 두고, Tree·Random Forest는 정규화 없이도 됩니다.
+  </div>
+</section>
+
+<section id="detail">
+  <h2>5. 데이터셋별 요약과 주의점</h2>
+
+  <div class="card">
+    <h3>① 수산물 신선도 (e-nose)</h3>
+    <ul>
+      <li>타깃 <code>label</code>: <b>1 = 신선, 2 = 비신선</b>. 원 데이터 설명에 따르면 TVC가 <b>4.3 log cfu/g</b>을 넘으면 비신선으로 라벨링했습니다.</li>
+      <li>특징: 가스 센서 8종(암모니아·CO₂·알코올·메탄·황화수소·LPG·수소)의 ppm 추정값.</li>
+      <li><b>누출 주의</b>: <code>TVC</code>는 라벨을 만든 근거 수치입니다. 특징에 넣으면 정답을 그대로 보는 셈이므로 <b>Meta 또는 Ignore</b>로 빼십시오. <code>Time</code>도 부패가 시간에 따라 진행되므로 넣으면 정확도가 거의 100%가 됩니다. "시간만으로 예측"과 "냄새만으로 예측"을 나눠 비교하면 수업 논점이 선명해집니다.</li>
+      <li>클래스 불균형: 신선 21,600 대 비신선 2.8만~5.7만(어종별).</li>
+      <li>어종이 다르면 가스 농도 스케일이 달라 한 파일로 합치지 않고 5개로 나눠 두었습니다. 어종별 모델을 각각 만들어 비교해 보십시오.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>② 식품 부패 IoT 센서</h3>
+    <ul>
+      <li>타깃 <code>Target_Spoilage_Class</code>: Fresh · Acceptable · Spoiled 3종. <b>타깃 결측 1,117행</b>은 Orange3에서 클래스 <code>?</code>로 표시되며 학습에서 자동으로 빠집니다.</li>
+      <li><b>이 데이터는 제작자가 공개한 시뮬레이션(합성) 데이터</b>입니다. 실측 냉장 유통 기록이 아니라, 결측·이상치·표기 불일치를 일부러 넣어 만든 교육용 챌린지 데이터입니다(제작자 설명 기준).</li>
+      <li><b>누출 주의</b>: <code>Target_TVC_log10</code>은 클래스를 만든 근거 수치입니다. 특징에서 빼십시오.</li>
+      <li><b>그룹 누출 주의</b>: 같은 <code>Item_ID</code>(10,000개 팩)를 시간에 따라 여러 번 측정한 데이터입니다. 무작위 5-fold 교차검증은 같은 팩의 다른 시점이 학습·검증에 섞여 점수를 부풀립니다. Orange3의 Test and Score에는 그룹을 지정하는 칸이 없으므로, 수업에서는 이 점을 설명하고 <b>Test and Score의 교차검증 점수는 낙관적</b>이라고 다루거나, Item_ID 구간으로 파일을 나눠 학습·검증을 분리하십시오.</li>
+      <li>원본에 들어 있는 잡음: <code>Beef / BEEF / "beef "</code>, <code>Vacuum / vac / vacuum-sealed</code>처럼 같은 범주가 다르게 적혀 있고, 결측이 열마다 3~4%씩 있습니다. 센서 ADC가 <b>65535</b>(16비트 포화)로 찍힌 값이 703건 있습니다.</li>
+      <li>클래스 분포(타깃이 있는 149,713행 기준): Fresh 79,675 (53.2%) · Spoiled 49,053 (32.8%) · Acceptable 20,985 (14.0%).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>③ 우유 품질 등급</h3>
+    <ul>
+      <li>타깃 <code>Grade</code>: low(429) · medium(374) · high(256) — 세 클래스가 비교적 고른 편입니다.</li>
+      <li>특징 7개: <code>pH</code>·<code>Temprature</code>(°C)·<code>Taste</code>·<code>Odor</code>·<code>Fat</code>·<code>Turbidity</code>·<code>Colour</code>. Taste·Odor·Fat·Turbidity는 0/1 이진, Colour는 240~255.</li>
+      <li>결측 없음. 원본 헤더의 <code>Temprature</code>는 철자 오류지만 값과 함께 그대로 두었습니다(Orange3 화면에도 이 이름으로 나옵니다).</li>
+      <li>트리 하나로 규칙이 깔끔하게 나오는 데이터라 첫 실습으로 적합합니다.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>④ 레드 와인 품질</h3>
+    <ul>
+      <li>타깃 <code>quality</code>: 3~8의 6개 값(3:10 · 4:53 · 5:681 · 6:638 · 7:199 · 8:18). <b>순서가 있는 값</b>이고 5·6에 82%가 몰려 있습니다.</li>
+      <li>Kaggle 배포본은 이미 쉼표 구분입니다(원 UCI 배포본은 세미콜론). 값은 같습니다.</li>
+      <li>수업에서 이진 분류로 다루려면 <code>quality ≥ 7</code>을 "좋음"으로 묶는 방법이 흔합니다(좋음 217 vs 그 외 1,382). Orange3에서는 <b>Feature Constructor</b>로 <code>quality &gt;= 7</code> 식의 열을 만들거나, <b>Discretize</b>로 구간을 나눈 뒤 Select Columns에서 타깃으로 지정합니다.</li>
+      <li>Logistic Regression을 그대로 돌리면 6개 클래스 중 소수 클래스(3·8)를 거의 못 맞힙니다. Confusion Matrix로 그 이유를 보여 주기 좋은 예제입니다.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>⑤ 커피 품질 (CQI)</h3>
+    <ul>
+      <li>타깃 <code>Quality_Class</code>(파생): A 18 · B 75 · C 86 · D 28. 근거는 원본 <code>Total Cup Points</code>(78.00~89.33점)입니다.</li>
+      <li><b>누출 주의</b>: <code>Total Cup Points</code>는 채점 항목(Aroma·Flavor·Aftertaste·Acidity·Body·Balance·Uniformity·Clean Cup·Sweetness·Overall)의 <b>합계</b>입니다. 특징에 넣으면 정답이 그대로 새므로 반드시 빼십시오.</li>
+      <li>특징으로 쓸 만한 열: 위 채점 항목 10개 + <code>Moisture Percentage</code>·<code>Category One Defects</code>·<code>Category Two Defects</code>·<code>Quakers</code>.</li>
+      <li><b>Meta/Ignore로 보낼 열</b>: <code>ID</code>·<code>Farm Name</code>·<code>Lot Number</code>·<code>Mill</code>·<code>ICO Number</code>·<code>Company</code>·<code>Producer</code>·<code>Region</code>·<code>Grading Date</code>·<code>Expiration</code>·<code>Owner</code>·<code>Certification Body/Address/Contact</code>·<code>Altitude</code>·<code>Bag Weight</code>. 이름·주소·날짜는 값 종류가 너무 많아 분류에 도움이 안 되고 과적합만 만듭니다.</li>
+      <li>값이 하나뿐이라 정보가 없는 열: <code>Status</code>(전부 Completed), <code>Clean Cup</code>·<code>Sweetness</code>(전부 10.0), <code>Defects</code>(전부 0).</li>
+      <li>207행뿐인 소형 데이터입니다. 정확도 한 숫자보다 교차검증 점수의 흔들림(표준편차)을 함께 읽는 연습에 적합합니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="cols">
+  <h2>6. 열 설명</h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>① 수산물 (11열)</th><th>뜻</th></tr>
+      <tr><td><code>Ammonia MQ135</code></td><td>MQ-135 센서 — 암모니아·CO₂ 추정 농도(ppm)</td></tr>
+      <tr><td><code>Co2</code></td><td>이산화탄소 추정 농도(ppm)</td></tr>
+      <tr><td><code>Alcohol</code></td><td>MQ-2 — 알코올(ppm)</td></tr>
+      <tr><td><code>Methane</code></td><td>MQ-9 — 메탄(ppm)</td></tr>
+      <tr><td><code>Hydrogen Sulfide</code></td><td>MQ-136 — 황화수소(ppm)</td></tr>
+      <tr><td><code>LPG</code></td><td>MQ-5 — 액화석유가스(ppm)</td></tr>
+      <tr><td><code>Hydrogen</code></td><td>MQ-8 — 수소(ppm)</td></tr>
+      <tr><td><code>Ammonia MQ137</code></td><td>MQ-137 — 암모니아(ppm)</td></tr>
+      <tr><td><code>label</code></td><td>타깃 — 1 신선 · 2 비신선</td></tr>
+      <tr><td><code>Time</code></td><td>측정 시작 후 경과 시간(시간)</td></tr>
+      <tr><td><code>TVC</code></td><td>총균수 log cfu/g — 라벨의 근거 수치(특징에서 제외)</td></tr>
+    </table>
+  </div>
+
+  <div class="tw">
+    <table>
+      <tr><th>② 부패 IoT (16열)</th><th>뜻</th></tr>
+      <tr><td><code>Timestamp</code></td><td>측정 시각</td></tr>
+      <tr><td><code>Item_ID</code></td><td>팩 개체 번호(10,000개) — 메타</td></tr>
+      <tr><td><code>Facility_ID</code></td><td>창고·운송·소매 15개 거점</td></tr>
+      <tr><td><code>Meat_Type</code></td><td>Beef · Pork · Chicken · Lamb (표기 불일치 있음)</td></tr>
+      <tr><td><code>Packaging</code></td><td>Aerobic · Vacuum · MAP 등</td></tr>
+      <tr><td><code>Elapsed_Time_Hours</code></td><td>유통 경과 시간</td></tr>
+      <tr><td><code>Ambient_Temp_C</code></td><td>주변 온도(°C)</td></tr>
+      <tr><td><code>Ambient_Humidity_Pct</code></td><td>주변 습도(%)</td></tr>
+      <tr><td><code>Sensor_MQ2_ADC</code> … <code>MQ137_ADC</code></td><td>가스 센서 6종의 ADC 원값(0~65535)</td></tr>
+      <tr><td><code>Target_TVC_log10</code></td><td>총균수 log10 — 클래스의 근거 수치(특징에서 제외)</td></tr>
+      <tr><td><code>Target_Spoilage_Class</code></td><td>타깃 — Fresh · Acceptable · Spoiled</td></tr>
+    </table>
+  </div>
+
+  <div class="tw">
+    <table>
+      <tr><th>③ 우유 (8열)</th><th>뜻</th></tr>
+      <tr><td><code>pH</code></td><td>산도</td></tr>
+      <tr><td><code>Temprature</code></td><td>온도(°C)</td></tr>
+      <tr><td><code>Taste</code> <code>Odor</code></td><td>맛 · 냄새 만족 여부(1/0)</td></tr>
+      <tr><td><code>Fat</code> <code>Turbidity</code></td><td>지방 · 탁도 만족 여부(1/0)</td></tr>
+      <tr><td><code>Colour</code></td><td>색 측정값(240~255)</td></tr>
+      <tr><td><code>Grade</code></td><td>타깃 — low · medium · high</td></tr>
+    </table>
+  </div>
+
+  <div class="tw">
+    <table>
+      <tr><th>④ 레드 와인 (12열)</th><th>뜻</th></tr>
+      <tr><td><code>fixed acidity</code> <code>volatile acidity</code> <code>citric acid</code></td><td>고정 산도 · 휘발 산도 · 구연산</td></tr>
+      <tr><td><code>residual sugar</code> <code>chlorides</code></td><td>잔당 · 염화물</td></tr>
+      <tr><td><code>free sulfur dioxide</code> <code>total sulfur dioxide</code></td><td>유리·총 아황산</td></tr>
+      <tr><td><code>density</code> <code>pH</code> <code>sulphates</code> <code>alcohol</code></td><td>밀도 · pH · 황산염 · 알코올도수</td></tr>
+      <tr><td><code>quality</code></td><td>타깃 — 관능 평가 점수 3~8</td></tr>
+    </table>
+  </div>
+
+  <div class="tw">
+    <table>
+      <tr><th>⑤ 커피 (41열, 주요 열)</th><th>뜻</th></tr>
+      <tr><td><code>Aroma</code> <code>Flavor</code> <code>Aftertaste</code></td><td>향 · 풍미 · 여운 (10점 만점)</td></tr>
+      <tr><td><code>Acidity</code> <code>Body</code> <code>Balance</code></td><td>산미 · 바디 · 균형</td></tr>
+      <tr><td><code>Uniformity</code> <code>Clean Cup</code> <code>Sweetness</code></td><td>균일성 · 클린컵 · 단맛</td></tr>
+      <tr><td><code>Overall</code></td><td>종합 평가</td></tr>
+      <tr><td><code>Defects</code> <code>Category One Defects</code> <code>Category Two Defects</code> <code>Quakers</code></td><td>결점 · 1·2급 결점 수 · 미성숙 두</td></tr>
+      <tr><td><code>Moisture Percentage</code></td><td>수분(%)</td></tr>
+      <tr><td><code>Country of Origin</code> <code>Region</code> <code>Variety</code> <code>Processing Method</code></td><td>원산지 · 지역 · 품종 · 가공법</td></tr>
+      <tr><td><code>Total Cup Points</code></td><td>채점 항목 합계(78.00~89.33) — 특징에서 제외</td></tr>
+      <tr><td><code>Quality_Class</code></td><td>타깃(파생) — A ≥86 · B 84~86 · C 82~84 · D &lt;82</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="src">
+  <h2>7. 출처와 라이선스</h2>
+  <div class="tw">
+    <table>
+      <tr><th>데이터셋</th><th>Kaggle 원본</th><th>라이선스</th></tr>
+      <tr><td>수산물 신선도 e-nose</td><td><a href="https://www.kaggle.com/datasets/rafimahfuz/e-nose-based-fish-freshness-evaluation">rafimahfuz/e-nose-based-fish-freshness-evaluation</a></td><td>CC0 (Public Domain)</td></tr>
+      <tr><td>식품 부패 IoT (합성)</td><td><a href="https://www.kaggle.com/datasets/razanihababdellatif/food-spoilage-iot-dataset">razanihababdellatif/food-spoilage-iot-dataset</a></td><td>CC0 (Public Domain)</td></tr>
+      <tr><td>우유 품질</td><td><a href="https://www.kaggle.com/datasets/cpluzshrijayan/milkquality">cpluzshrijayan/milkquality</a></td><td>Kaggle 표기 Unknown</td></tr>
+      <tr><td>레드 와인 품질</td><td><a href="https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009">uciml/red-wine-quality-cortez-et-al-2009</a></td><td>DbCL (원 출처 UCI ML Repository, Cortez et al. 2009)</td></tr>
+      <tr><td>커피 품질 CQI</td><td><a href="https://www.kaggle.com/datasets/fatihb/coffee-quality-data-cqi">fatihb/coffee-quality-data-cqi</a></td><td>CQI 데이터 스크랩, Kaggle 'Other'</td></tr>
+    </table>
+  </div>
+  <p class="small">원본 CSV를 내려받아 인코딩·구분자·헤더 공백만 정리했습니다. 행·값은 변형하지 않았고, 예외는 커피의 <code>Quality_Class</code>(원본 점수에 구간 규칙을 적용해 맨 뒤에 추가) 하나입니다.</p>
+</section>
+
+</main>
+<footer>교육·실습용 자료입니다. 데이터 출처와 라이선스는 7장을 확인하십시오.</footer>
+<script>
+function cp(btn,t){
+  const done=()=>{const o=btn.textContent;btn.textContent="복사됨";setTimeout(()=>{btn.textContent=o;},1200);};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(done).catch(()=>fallback(t,done));}
+  else fallback(t,done);
+}
+function fallback(t,done){
+  const a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";
+  document.body.appendChild(a);a.select();
+  try{document.execCommand("copy");done();}catch(e){}
+  a.remove();
+}
+</script>
+</body>
+</html>
