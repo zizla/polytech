@@ -209,7 +209,11 @@ footer{max-width:900px;margin:0 auto;padding:20px 16px 40px;font-size:.8rem;colo
   </div>
 
   <div class="note">
-    <b>전처리 팁</b> — ②의 센서 ADC 값(0~65535)과 경과 시간은 단위가 크게 다릅니다. Logistic Regression·kNN을 쓸 때는 <b>Preprocess</b>의 Normalize를 앞에 두고, Tree·Random Forest는 정규화 없이도 됩니다.
+    <b>전처리 팁</b> — ②의 센서 ADC 값(0~65535)과 경과 시간은 단위가 크게 다릅니다. Logistic Regression·kNN을 쓸 때는 <b>Preprocess</b>의 Normalize를 앞에 두고, Tree·Random Forest는 정규화 없이도 됩니다. 범주형 특징(②의 <code>Meat_Type</code>·<code>Packaging</code>, ③의 0/1 지시자)을 원-핫으로 펼치려면 같은 위젯에서 <b>Continuize</b>를 쓰십시오.
+  </div>
+
+  <div class="note">
+    <b>타깃이 수치형으로 잡혔다면</b> — Test and Score의 Learners에 회귀 지표(MSE·RMSE)가 보이거나 Tree가 회귀 트리로 나오면 타깃이 수치형입니다. Orange3는 서로 다른 값이 3개 이상인 숫자 열을 수치형으로 읽으므로, ④의 <code>quality</code>처럼 원래 숫자인 타깃은 분류로 쓰기 전에 <b>Discretize</b>로 구간을 나눠 주십시오(①의 <code>label</code>은 값이 두 개라 자동으로 범주형이 됩니다).
   </div>
 </section>
 
@@ -220,6 +224,7 @@ footer{max-width:900px;margin:0 auto;padding:20px 16px 40px;font-size:.8rem;colo
     <h3>① 수산물 신선도 (e-nose)</h3>
     <ul>
       <li>타깃 <code>label</code>: <b>1 = 신선, 2 = 비신선</b>. 원 데이터 설명에 따르면 TVC가 <b>4.3 log cfu/g</b>을 넘으면 비신선으로 라벨링했습니다.</li>
+      <li>값이 1·2 두 개뿐이라 Orange3가 <code>label</code>을 자동으로 범주형 클래스로 읽습니다(별도 설정 불필요).</li>
       <li>특징: 가스 센서 8종(암모니아·CO₂·알코올·메탄·황화수소·LPG·수소)의 ppm 추정값.</li>
       <li><b>누출 주의</b>: <code>TVC</code>는 라벨을 만든 근거 수치입니다. 특징에 넣으면 정답을 그대로 보는 셈이므로 <b>Meta 또는 Ignore</b>로 빼십시오. <code>Time</code>도 부패가 시간에 따라 진행되므로 넣으면 정확도가 거의 100%가 됩니다. "시간만으로 예측"과 "냄새만으로 예측"을 나눠 비교하면 수업 논점이 선명해집니다.</li>
       <li>클래스 불균형: 신선 21,600 대 비신선 2.8만~5.7만(어종별).</li>
@@ -254,7 +259,7 @@ footer{max-width:900px;margin:0 auto;padding:20px 16px 40px;font-size:.8rem;colo
     <ul>
       <li>타깃 <code>quality</code>: 3~8의 6개 값(3:10 · 4:53 · 5:681 · 6:638 · 7:199 · 8:18). <b>순서가 있는 값</b>이고 5·6에 82%가 몰려 있습니다.</li>
       <li>Kaggle 배포본은 이미 쉼표 구분입니다(원 UCI 배포본은 세미콜론). 값은 같습니다.</li>
-      <li>수업에서 이진 분류로 다루려면 <code>quality ≥ 7</code>을 "좋음"으로 묶는 방법이 흔합니다(좋음 217 vs 그 외 1,382). Orange3에서는 <b>Feature Constructor</b>로 <code>quality &gt;= 7</code> 식의 열을 만들거나, <b>Discretize</b>로 구간을 나눈 뒤 Select Columns에서 타깃으로 지정합니다.</li>
+      <li><b>분류로 쓰려면 타깃 형식을 바꿔야 합니다.</b> Orange3는 서로 다른 값이 3개 이상인 숫자 열을 수치형으로 읽으므로, <code>quality</code>는 그대로 두면 회귀 타깃이 됩니다. <b>Discretize</b> 위젯에서 <code>quality</code>를 골라 구간(3.5 · 4.5 · 5.5 · 6.5 · 7.5)으로 나누면 출력의 클래스가 범주형으로 바뀌어 Test and Score에서 분류 모델을 비교할 수 있습니다. 이진 분류로 묶으려면 임계값을 6.5 하나만 두어 <code>7 이상 217건 / 그 미만 1,382건</code>으로 나눕니다.</li>
       <li>Logistic Regression을 그대로 돌리면 6개 클래스 중 소수 클래스(3·8)를 거의 못 맞힙니다. Confusion Matrix로 그 이유를 보여 주기 좋은 예제입니다.</li>
     </ul>
   </div>

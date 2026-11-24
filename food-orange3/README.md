@@ -37,7 +37,7 @@ File 위젯 → URL 탭 → 아래 주소 붙여넣기 → Apply
 - **누출 주의**: ① `TVC`, ② `Target_TVC_log10`, ⑤ `Total Cup Points`는 타깃을 만든 근거 수치입니다. 특징에서 빼십시오. ①의 `Time`도 넣으면 정확도가 거의 100%가 됩니다.
 - ②는 같은 `Item_ID`(10,000개 팩)를 반복 측정한 데이터라 무작위 교차검증 점수가 낙관적입니다. Test and Score에는 그룹 지정 칸이 없으므로 이 한계를 함께 설명하십시오.
 - ② `Meat_Type`·`Packaging`은 `Beef / BEEF / "beef "`, `Vacuum / vac / vacuum-sealed`처럼 표기가 섞여 있고, 열마다 3~4% 결측이 있습니다. 센서 ADC가 65535(포화)인 값 703건도 원본 그대로입니다.
-- ④는 5·6등급이 82%를 차지합니다. 이진 분류로 쓰려면 `quality >= 7`(좋음 217 vs 그 외 1,382)로 묶습니다.
+- ④는 5·6등급이 82%를 차지하고, `quality`는 값이 6가지인 숫자 열이라 Orange3가 수치형으로 읽습니다. 분류로 쓰려면 **Discretize**로 구간을 나누십시오(임계값 6.5 하나면 7 이상 217 vs 그 외 1,382로 이진 분류).
 - ⑤의 `Quality_Class`는 원본 `Total Cup Points`에 구간 규칙만 적용해 맨 뒤에 붙인 열입니다. `ID`·농장·로트·주소·날짜 열은 메타로 보내고, 상수 열(`Status`·`Clean Cup`·`Sweetness`·`Defects`)은 무시하십시오.
 
 ## 원본
